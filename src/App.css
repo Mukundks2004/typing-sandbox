@@ -1,0 +1,7 @@
+.navbar-brand {
+  position: relative;
+  background: url(/github-mark.svg);
+  width: 170px;
+  left: 15px;
+  background-size: contain;
+}
