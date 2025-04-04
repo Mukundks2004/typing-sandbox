@@ -1,7 +1,17 @@
-.navbar-brand {
-  position: relative;
-  background: url(/github-mark.svg);
-  width: 170px;
-  left: 15px;
-  background-size: contain;
+.navbar a{
+  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.navbar-img {
+  height: 24px;
+  width: auto;
+  object-fit: contain;
+}
+
+.selected-option {
+  width: 500px;
+  margin-left: auto; 
+  display: flex;
+  justify-content: space-between;
+  align-items: center; 
 }

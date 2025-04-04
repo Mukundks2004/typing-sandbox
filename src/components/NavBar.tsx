@@ -1,50 +1,34 @@
+import "../App.css";
+
 function NavBar() {
   return (
-    <nav className="navbar navbar-expand-lg bg-body-tertiary">
+    <nav className="navbar bg-body-tertiary">
       <div className="container-fluid">
-        <a className="navbar-brand"></a>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarSupportedContent"
-          aria-controls="navbarSupportedContent"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarSupportedContent">
-          <ul className="navbar-nav me-auto">
-            <li className="nav-item">
-              <a className="nav-link active" aria-current="page">
-                TYPING SANDBOX
-              </a>
-            </li>
-          </ul>
-          <ul className="navbar-nav">
-            <li className="nav-item">
-              <a className="nav-link active" aria-current="page">
-                DOCS
-              </a>
-            </li>
-            <li className="nav-item">
-              <a
-                className="nav-link active"
-                aria-current="page"
-                href="https://google.com"
-              >
-                <img
-                  src="/github-mark.svg"
-                  alt="Logo"
-                  width="24"
-                  height="24"
-                  className="d-inline-block align-text-top"
-                />
-              </a>
-            </li>
-          </ul>
-        </div>
+        <ul className="navbar-nav me-auto d-flex flex-row">
+          <li className="nav-item">
+            <a className="nav-link active" aria-current="page" href="/">
+              TYPING SANDBOX
+            </a>
+          </li>
+          <li className="nav-item ms-4">
+            <a className="nav-link active" aria-current="page" href="/docs">
+              DOCS
+            </a>
+          </li>
+        </ul>
+        <ul className="navbar-nav">
+          <li className="nav-item">
+            <a className="nav-link active">
+              <img
+                src="/github-mark.svg"
+                alt="Logo"
+                width="24"
+                height="24"
+                className="navbar-img"
+              />
+            </a>
+          </li>
+        </ul>
       </div>
     </nav>
   );
