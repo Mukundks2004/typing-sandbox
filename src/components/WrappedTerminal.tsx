@@ -1,5 +1,3 @@
-import XTerminal from "./XTerminal";
-
 function WrappedTerminal() {
   return (
     <div

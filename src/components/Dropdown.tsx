@@ -4,7 +4,7 @@ import { useState } from "react";
 
 function Dropdown() {
   let [selectedLang, setSelectedLang] = useState("C#");
-  let options = ["C#", "Scala", "C"];
+  let options = ["C#", "Scala"];
 
   const handleSelectItem = (item: string) => {
     setSelectedLang(item);

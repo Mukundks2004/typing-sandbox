@@ -1,5 +1,9 @@
 import ITerminalInstance from "./ITerminalInstance";
-import process from "../repl/sample";
+import BasicRepl from "../repl/BasicRepl";
+import CSharpRepl from "../repl/CsharpRepl";
+import ScalaRepl from "../repl/ScalaRepl";
+import IRepl from "../repl/IRepl";
+import IReplManager from "./IReplManager"
 
 function removeNthCharacter(str: string, n: number): string {
     return str.slice(0, n) + str.slice(n + 1);
@@ -9,13 +13,26 @@ function insertString(original: string, insert: string, index: number): string {
     return original.slice(0, index) + insert + original.slice(index);
 }  
 
-class TerminalInstance implements ITerminalInstance {
+class TerminalInstance implements ITerminalInstance, IReplManager {
     prompt: string = "$ ";
     history: string[] = [];
     stackPointer: number = 0;
 
     currentLine: string = "";
     cursor: number = 0;
+
+    activeRepl: IRepl = new BasicRepl();
+
+    Clear(): void {
+        this.history = [];
+        this.stackPointer = 0;
+        this.currentLine = "";
+        this.cursor = 0;
+    }
+
+    SetRepl(newRepl: IRepl): void {
+        this.activeRepl = newRepl;
+    }
     
     onKey(key: {key: string, domEvent: KeyboardEvent}): string {
         if (key.key === "\r") {
@@ -24,7 +41,7 @@ class TerminalInstance implements ITerminalInstance {
             this.currentLine = "";
             this.cursor = 0;
             this.stackPointer = this.history.length;
-            return "\r\n" + process(temp) + this.prompt;
+            return "\r\n" + this.activeRepl.Process(temp) + this.prompt;
         }
         else if (key.key === '\x1B[A') {
             if (this.stackPointer > 0) {
