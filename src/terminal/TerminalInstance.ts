@@ -1,4 +1,5 @@
 import ITerminalInstance from "./ITerminalInstance";
+import process from "../repl/sample";
 
 function removeNthCharacter(str: string, n: number): string {
     return str.slice(0, n) + str.slice(n + 1);
@@ -19,10 +20,11 @@ class TerminalInstance implements ITerminalInstance {
     onKey(key: {key: string, domEvent: KeyboardEvent}): string {
         if (key.key === "\r") {
             this.history.push(this.currentLine);
+            const temp = this.currentLine;
             this.currentLine = "";
             this.cursor = 0;
             this.stackPointer = this.history.length;
-            return "\r\n" + this.prompt;
+            return "\r\n" + process(temp) + this.prompt;
         }
         else if (key.key === '\x1B[A') {
             if (this.stackPointer > 0) {
