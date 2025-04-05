@@ -15,3 +15,12 @@
   justify-content: space-between;
   align-items: center; 
 }
+
+.windows-terminal {
+  font-family: 'WindowsTerminalFont';
+}
+
+@font-face {
+  font-family: 'WindowsTerminalFont';
+  src: url('/fonts/Cascadia.ttf');
+}
