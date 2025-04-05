@@ -1,9 +1,8 @@
 import { Terminal } from "@xterm/xterm";
 import { useEffect, useRef, useState } from "react";
-import terminalInstance from "../terminal/ITerminalInstance";
 import "@xterm/xterm/css/xterm.css";
 import "../App.css";
-import TerminalInstance from "../terminal/terminalInstance";
+import TerminalInstance from "../terminal/TerminalInstance";
 
 const xtermjsTheme = {
   foreground: "#F8F8F8",
@@ -30,7 +29,7 @@ const xtermjsTheme = {
 function XTerminal() {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
-  const [terminalInstance, setTerminalInstance] = useState<TerminalInstance>(
+  const [terminalInstance, _] = useState<TerminalInstance>(
     new TerminalInstance()
   );
 
@@ -56,18 +55,18 @@ function XTerminal() {
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstance.onKey(key));
-        // console.log(
-        //   "Key",
-        //   key,
-        //   "Cursor",
-        //   terminalInstance.cursor,
-        //   "Current line",
-        //   terminalInstance.currentLine,
-        //   "Stack pointer",
-        //   terminalInstance.stackPointer,
-        //   "history",
-        //   terminalInstance.history
-        // );
+        console.log(
+          "Key",
+          key,
+          "Cursor",
+          terminalInstance.cursor,
+          "Current line",
+          terminalInstance.currentLine,
+          "Stack pointer",
+          terminalInstance.stackPointer,
+          "history",
+          terminalInstance.history
+        );
       });
     }
   }, []);

@@ -92,9 +92,8 @@ class TerminalInstance implements ITerminalInstance, IReplManager {
             return "";
         }
         else if (key.key === '\x1B[3~') {
-            if (this.cursor < this.currentLine.length - 1) {
+            if (this.cursor < this.currentLine.length) {
                 this.currentLine = removeNthCharacter(this.currentLine, this.cursor);
-                this.cursor--;
                 return "\x1b[P";
             }
             return "";

@@ -18,7 +18,10 @@ function NavBar() {
         </ul>
         <ul className="navbar-nav">
           <li className="nav-item">
-            <a className="nav-link active">
+            <a
+              className="nav-link active"
+              href="https://github.com/Mukundks2004/typing-sandbox"
+            >
               <img
                 src="/github-mark.svg"
                 alt="Logo"
