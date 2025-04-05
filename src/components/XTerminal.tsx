@@ -1,7 +1,9 @@
-import { Terminal, ITerminalOptions } from "@xterm/xterm";
-import { useEffect, useRef } from "react";
+import { Terminal } from "@xterm/xterm";
+import { useEffect, useRef, useState } from "react";
+import terminalInstance from "../terminal/ITerminalInstance";
 import "@xterm/xterm/css/xterm.css";
 import "../App.css";
+import TerminalInstance from "../terminal/terminalInstance";
 
 const xtermjsTheme = {
   foreground: "#F8F8F8",
@@ -25,45 +27,12 @@ const xtermjsTheme = {
   brightWhite: "#FFFFFF",
 };
 
-// function XTerminal() {
-//   // 80 24
-//   const term = new Terminal({
-//     allowProposedApi: true,
-//     windowsMode: true,
-//     fontFamily: '"WindowsTerminalFont", monospace',
-//     theme: xtermjsTheme,
-//     letterSpacing: 1,
-//     cursorBlink: true,
-//   } as ITerminalOptions);
-//   const terminalRef = useRef<HTMLDivElement | null>(null);
-//   useEffect(() => {
-//     if (!terminalRef.current) {
-//       return;
-//     }
-
-//     term.resize(80, 24);
-
-//     const keyHandler = (ev: KeyboardEvent) => {
-//       console.log(ev.key.charCodeAt(0));
-//       if (ev.key.charCodeAt(0) === 69) term.write("\n");
-//       term.write(ev.key);
-//       return true;
-//     };
-
-//     term.attachCustomKeyEventHandler(keyHandler);
-
-//     if (!term.element) {
-//       term.open(terminalRef.current);
-//       term.write("Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ");
-//     }
-//   }, [term]);
-
-//   return <div ref={terminalRef}></div>;
-// }
-
 function XTerminal() {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
+  const [terminalInstance, setTerminalInstance] = useState<TerminalInstance>(
+    new TerminalInstance()
+  );
 
   useEffect(() => {
     if (!terminalRef.current) {
@@ -76,44 +45,52 @@ function XTerminal() {
         windowsMode: true,
         fontFamily: '"WindowsTerminalFont", monospace',
         theme: xtermjsTheme,
-        // letterSpacing: 1,
+        letterSpacing: 1,
         cursorBlink: true,
       });
 
       termRef.current.open(terminalRef.current);
-      termRef.current.writeln("Hello from \x1B[1;3;31mxterm.js\x1B[0m $ ");
+      termRef.current.write(terminalInstance.prompt);
 
       termRef.current.resize(80, 24);
 
-      // termRef.current.onData((data) => {
-      //   if (data === "\n") {
-      //     termRef.current!.writeln("");
-      //     console.log("new");
-      //   } else {
-      //     termRef.current!.write(data);
-      //   }
-      //   console.log(data);
-      // });
-
-      // termRef.current.attachCustomKeyEventHandler((key) => {
-      //   if (key.down)
-      //   console.log(key.key);
-      //   return false;
-      // });
-
-      termRef.current.onKey((key, keyboardEvent) => {
-        console.log(key);
-        console.log(keyboardEvent);
-        if (key.key === "\r") {
-          termRef.current!.writeln("");
-        } else {
-          termRef.current!.write(key.key);
-        }
+      termRef.current.onKey((key, _) => {
+        termRef.current!.write(terminalInstance.onKey(key));
+        // console.log(
+        //   "Key",
+        //   key,
+        //   "Cursor",
+        //   terminalInstance.cursor,
+        //   "Current line",
+        //   terminalInstance.currentLine,
+        //   "Stack pointer",
+        //   terminalInstance.stackPointer,
+        //   "history",
+        //   terminalInstance.history
+        // );
       });
     }
   }, []);
 
-  return <div ref={terminalRef}></div>;
+  return (
+    <div
+      style={{
+        display: "flex",
+        justifyContent: "center",
+      }}
+    >
+      <div
+        ref={terminalRef}
+        style={{
+          width: "850px",
+          padding: "20px",
+          boxSizing: "border-box",
+          backgroundColor: "#2D2E2C",
+          borderRadius: "20px",
+        }}
+      ></div>
+    </div>
+  );
 }
 
 export default XTerminal;
