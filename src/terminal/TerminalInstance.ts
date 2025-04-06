@@ -4,7 +4,7 @@ import CSharpRepl from "../repl/CSharpRepl";
 import ScalaRepl from "../repl/ScalaRepl";
 import IRepl from "../repl/IRepl";
 import IReplManager from "./IReplManager"
-import { INITIAL_LANGUAGE_SELECTION } from "../constants/constants";
+import { INITIAL_LANGUAGE_SELECTION } from "../constants/Constants";
 
 function removeNthCharacter(str: string, n: number): string {
     return str.slice(0, n) + str.slice(n + 1);
@@ -16,7 +16,6 @@ function insertString(original: string, insert: string, index: number): string {
 
 class TerminalInstance implements ITerminalInstance, IReplManager {
     prompt: string = "$ ";
-    history: string[] = [];
     stackPointer: number = 0;
 
     currentLine: string = "";
@@ -25,26 +24,19 @@ class TerminalInstance implements ITerminalInstance, IReplManager {
     activeRepl: IRepl = new BasicRepl();
     
     constructor() {
-        console.log("constructor called!");
         this.SetRepl(INITIAL_LANGUAGE_SELECTION);
     }
 
     Clear(): void {
-        this.history = [];
         this.stackPointer = 0;
-        this.currentLine = "";
-        this.cursor = 0;
     }
 
     SetRepl(newReplName: string): void {
-        console.log("calling setrepl " + newReplName)
         switch (newReplName) {
             case "C#":
-                console.log("set to c sharp repl!");
                 this.activeRepl = new CSharpRepl();
                 break;
             case "Scala":
-                console.log("set to scala repl!");
                 this.activeRepl = new ScalaRepl();
                 break;
             default:
@@ -59,30 +51,32 @@ class TerminalInstance implements ITerminalInstance, IReplManager {
             return "";
         }
         else if (key.key === "\r") {
-            this.history.push(this.currentLine);
+            if (!this.currentLine.match(/^\s*$/)) {
+                this.activeRepl.history.push(this.currentLine);
+            }
             const temp = this.currentLine;
             this.currentLine = "";
             this.cursor = 0;
-            this.stackPointer = this.history.length;
+            this.stackPointer = this.activeRepl.history.length;
             return "\r\n" + this.activeRepl.Process(temp) + this.prompt;
         }
         else if (key.key === '\x1B[A') {
             if (this.stackPointer > 0) {
                 this.stackPointer--;
-                this.cursor = this.history[this.stackPointer].length;
-                this.currentLine =  this.history[this.stackPointer]
-                return "\x1b[1M" + this.prompt + this.history[this.stackPointer];
+                this.cursor = this.activeRepl.history[this.stackPointer].length;
+                this.currentLine =  this.activeRepl.history[this.stackPointer]
+                return "\x1b[1M" + this.prompt + this.activeRepl.history[this.stackPointer];
             }
             else {
                 return "";
             }
         }
         else if (key.key === '\x1B[B') {
-            if (this.stackPointer < this.history.length - 1) {
+            if (this.stackPointer < this.activeRepl.history.length - 1) {
                 this.stackPointer++;
-                this.cursor = this.history[this.stackPointer].length;
-                this.currentLine =  this.history[this.stackPointer]
-                return "\x1b[1M" + this.prompt + this.history[this.stackPointer];
+                this.cursor = this.activeRepl.history[this.stackPointer].length;
+                this.currentLine =  this.activeRepl.history[this.stackPointer]
+                return "\x1b[1M" + this.prompt + this.activeRepl.history[this.stackPointer];
             }
             else {
                 return "";

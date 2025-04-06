@@ -4,7 +4,7 @@ import "@xterm/xterm/css/xterm.css";
 import "../App.css";
 import TerminalInstance from "../terminal/TerminalInstance";
 import Dropdown from "./Dropdown";
-import { INITIAL_LANGUAGE_SELECTION } from "../constants/constants";
+import { INITIAL_LANGUAGE_SELECTION } from "../constants/Constants";
 
 const xtermjsTheme = {
   foreground: "#F8F8F8",
@@ -60,29 +60,16 @@ function XTerminal() {
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstanceRef.current!.onKey(key));
-        // console.log(
-        //   "Key",
-        //   key,
-        //   "Cursor",
-        //   terminalInstance!.cursor,
-        //   "Current line",
-        //   terminalInstance!.currentLine,
-        //   "Stack pointer",
-        //   terminalInstance!.stackPointer,
-        //   "history",
-        //   terminalInstance!.history
-        // );
       });
     }
   }, []);
 
   const handleLangChange = (newLang: string) => {
-    console.log("handling change xterm " + newLang);
     setSelectedLang(newLang);
     terminalInstanceRef.current!.SetRepl(newLang);
+    terminalInstanceRef.current!.Clear();
+    termRef.current?.clear();
   };
-
-  console.log(selectedLang, handleLangChange);
 
   return (
     <>

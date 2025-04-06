@@ -14,7 +14,6 @@ function Dropdown({
   let options = LANGUAGE_OPTIONS;
 
   const handleSelectItem = (item: string) => {
-    console.log("handling selection " + item);
     setSelectedLang(item);
     onDropdownChange(item);
   };

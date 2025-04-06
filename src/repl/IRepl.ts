@@ -1,4 +1,5 @@
 interface IRepl {
+    history: string[];
     Process(input: string): string;
 }
 

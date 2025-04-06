@@ -6,6 +6,8 @@ const HELP = `Welcome to the SCALA Sandbox! Here are the commands available:\r
     :del                remove type from namespace\r\n\r\n`
 
 class ScalaRepl implements IRepl {
+    history: string[] = [];
+
     Process(input: string): string {
         switch (input) {
             case input.match(/^\s*$/)?.input: return "";

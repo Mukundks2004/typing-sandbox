@@ -24,3 +24,29 @@
   font-family: 'WindowsTerminalFont';
   src: url('/fonts/Cascadia.ttf');
 }
+
+body a {
+  text-decoration: none;
+  font-size: 20px;
+}
+
+.link-no-decoration {
+  text-decoration: none;
+  font-size: 16px;
+}
+
+body h2 {
+  color: #555555;
+}
+
+.text-offset {
+  padding: 50px 200px;
+}
+
+.code-block {
+  background-color: #F9F9F9;
+  border: 1px solid #D4D4D4;
+  border-radius: 10px;
+  padding: 20px;
+  color: #555555;
+}
