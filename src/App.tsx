@@ -1,7 +1,6 @@
 import NavBar from "./components/NavBar";
-import Dropdown from "./components/Dropdown";
-import XTerminal from "./components/XTerminal";
 import "./App.css";
+import XTerminal from "./components/XTerminal";
 
 function App() {
   return (
@@ -9,10 +8,7 @@ function App() {
       <div style={{ border: "1px solid", borderColor: "#DDDDDD" }}>
         <NavBar></NavBar>
       </div>
-      <Dropdown></Dropdown>
-      <div>
-        <XTerminal></XTerminal>
-      </div>
+      <XTerminal></XTerminal>
     </>
   );
 }

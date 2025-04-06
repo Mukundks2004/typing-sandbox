@@ -1,9 +1,10 @@
 import ITerminalInstance from "./ITerminalInstance";
 import BasicRepl from "../repl/BasicRepl";
-import CSharpRepl from "../repl/CsharpRepl";
+import CSharpRepl from "../repl/CSharpRepl";
 import ScalaRepl from "../repl/ScalaRepl";
 import IRepl from "../repl/IRepl";
 import IReplManager from "./IReplManager"
+import { INITIAL_LANGUAGE_SELECTION } from "../constants/constants";
 
 function removeNthCharacter(str: string, n: number): string {
     return str.slice(0, n) + str.slice(n + 1);
@@ -11,7 +12,7 @@ function removeNthCharacter(str: string, n: number): string {
 
 function insertString(original: string, insert: string, index: number): string {
     return original.slice(0, index) + insert + original.slice(index);
-}  
+}
 
 class TerminalInstance implements ITerminalInstance, IReplManager {
     prompt: string = "$ ";
@@ -22,6 +23,11 @@ class TerminalInstance implements ITerminalInstance, IReplManager {
     cursor: number = 0;
 
     activeRepl: IRepl = new BasicRepl();
+    
+    constructor() {
+        console.log("constructor called!");
+        this.SetRepl(INITIAL_LANGUAGE_SELECTION);
+    }
 
     Clear(): void {
         this.history = [];
@@ -30,12 +36,29 @@ class TerminalInstance implements ITerminalInstance, IReplManager {
         this.cursor = 0;
     }
 
-    SetRepl(newRepl: IRepl): void {
-        this.activeRepl = newRepl;
+    SetRepl(newReplName: string): void {
+        console.log("calling setrepl " + newReplName)
+        switch (newReplName) {
+            case "C#":
+                console.log("set to c sharp repl!");
+                this.activeRepl = new CSharpRepl();
+                break;
+            case "Scala":
+                console.log("set to scala repl!");
+                this.activeRepl = new ScalaRepl();
+                break;
+            default:
+                this.activeRepl = new BasicRepl();
+                break;
+        }
+        
     }
     
     onKey(key: {key: string, domEvent: KeyboardEvent}): string {
-        if (key.key === "\r") {
+        if (this.cursor === 80 && key.key !== "\r") {
+            return "";
+        }
+        else if (key.key === "\r") {
             this.history.push(this.currentLine);
             const temp = this.currentLine;
             this.currentLine = "";

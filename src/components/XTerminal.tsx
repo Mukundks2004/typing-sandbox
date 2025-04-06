@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from "react";
 import "@xterm/xterm/css/xterm.css";
 import "../App.css";
 import TerminalInstance from "../terminal/TerminalInstance";
+import Dropdown from "./Dropdown";
+import { INITIAL_LANGUAGE_SELECTION } from "../constants/constants";
 
 const xtermjsTheme = {
   foreground: "#F8F8F8",
@@ -29,11 +31,14 @@ const xtermjsTheme = {
 function XTerminal() {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
-  const [terminalInstance, _] = useState<TerminalInstance>(
-    new TerminalInstance()
-  );
+  const terminalInstanceRef = useRef<TerminalInstance | null>(null);
+  const [selectedLang, setSelectedLang] = useState(INITIAL_LANGUAGE_SELECTION);
 
   useEffect(() => {
+    if (!terminalInstanceRef.current) {
+      terminalInstanceRef.current = new TerminalInstance();
+    }
+
     if (!terminalRef.current) {
       return;
     }
@@ -49,46 +54,69 @@ function XTerminal() {
       });
 
       termRef.current.open(terminalRef.current);
-      termRef.current.write(terminalInstance.prompt);
+      termRef.current.write(terminalInstanceRef.current!.prompt);
 
       termRef.current.resize(80, 24);
 
       termRef.current.onKey((key, _) => {
-        termRef.current!.write(terminalInstance.onKey(key));
-        console.log(
-          "Key",
-          key,
-          "Cursor",
-          terminalInstance.cursor,
-          "Current line",
-          terminalInstance.currentLine,
-          "Stack pointer",
-          terminalInstance.stackPointer,
-          "history",
-          terminalInstance.history
-        );
+        termRef.current!.write(terminalInstanceRef.current!.onKey(key));
+        // console.log(
+        //   "Key",
+        //   key,
+        //   "Cursor",
+        //   terminalInstance!.cursor,
+        //   "Current line",
+        //   terminalInstance!.currentLine,
+        //   "Stack pointer",
+        //   terminalInstance!.stackPointer,
+        //   "history",
+        //   terminalInstance!.history
+        // );
       });
     }
   }, []);
 
+  const handleLangChange = (newLang: string) => {
+    console.log("handling change xterm " + newLang);
+    setSelectedLang(newLang);
+    terminalInstanceRef.current!.SetRepl(newLang);
+  };
+
+  console.log(selectedLang, handleLangChange);
+
   return (
-    <div
-      style={{
-        display: "flex",
-        justifyContent: "center",
-      }}
-    >
+    <>
       <div
-        ref={terminalRef}
         style={{
-          width: "850px",
-          padding: "20px",
-          boxSizing: "border-box",
-          backgroundColor: "#2D2E2C",
-          borderRadius: "20px",
+          display: "flex",
+          justifyContent: "center",
+          padding: "10px",
         }}
-      ></div>
-    </div>
+      >
+        <Dropdown
+          initialSelection={selectedLang}
+          onDropdownChange={handleLangChange}
+        />
+      </div>
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "850px",
+            padding: "20px",
+            boxSizing: "border-box",
+            backgroundColor: "#2D2E2C",
+            borderRadius: "20px",
+          }}
+          ref={terminalRef}
+        ></div>
+      </div>
+      );
+    </>
   );
 }
 
