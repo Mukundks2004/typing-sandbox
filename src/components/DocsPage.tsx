@@ -250,7 +250,7 @@ function DocsPage() {
             className="link-no-decoration"
             href="https://en.wikipedia.org/wiki/Homotopy_theory"
           >
-            Homotopy theory
+            hsomotopy theory
           </a>
           . Homotopy theory is a branch of{" "}
           <a
@@ -261,7 +261,7 @@ function DocsPage() {
           </a>{" "}
           concerned with the "sameness" of topological spaces, such as the
           equivalence of S<sup>1</sup> and R<sup>2</sup> - &#123;0&#125;. In
-          Type theory, since there may be many terms in a type it may be
+          type theory, since there may be many terms in a type, it may be
           possible for a theorm to be true in many distinct ways. HoTT makes
           types behave less like a collection of terms and more like rich
           mathematical structures determined by their elements, proofs of
