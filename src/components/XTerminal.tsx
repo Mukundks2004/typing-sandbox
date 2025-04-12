@@ -8,6 +8,7 @@ import {
   INITIAL_LANGUAGE_SELECTION,
   SHELL_PROMPT,
   TAB_STOP_WIDTH,
+  TERMINAL_HEIGHT,
   TERMINAL_WIDTH,
 } from "../constants/SandboxConstants";
 
@@ -40,15 +41,15 @@ function XTerminal() {
   const [selectedLang, setSelectedLang] = useState(INITIAL_LANGUAGE_SELECTION);
 
   useEffect(() => {
+    if (!terminalRef.current) {
+      return;
+    }
+
     if (!terminalInstanceRef.current) {
       terminalInstanceRef.current = new TerminalService(
         SHELL_PROMPT,
         TERMINAL_WIDTH - SHELL_PROMPT.length
       );
-    }
-
-    if (!terminalRef.current) {
-      return;
     }
 
     if (!termRef.current) {
@@ -66,7 +67,7 @@ function XTerminal() {
       termRef.current.open(terminalRef.current);
       termRef.current.write(terminalInstanceRef.current!.prompt);
 
-      termRef.current.resize(TERMINAL_WIDTH, 24);
+      termRef.current.resize(TERMINAL_WIDTH, TERMINAL_HEIGHT);
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstanceRef.current!.onKey(key));

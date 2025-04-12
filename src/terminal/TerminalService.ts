@@ -1,4 +1,4 @@
-import { TAB_STOP_WIDTH } from "../constants/SandboxConstants";
+import { TAB_STOP_WIDTH, TERMINAL_HEIGHT } from "../constants/SandboxConstants";
 import IReplService from "../repl/IReplService";
 import ReplService from "../repl/ReplService";
 import ITerminalService from "./ITerminalService";
@@ -134,7 +134,6 @@ class TerminalService implements ITerminalService {
       if (this.currentLine.length - 1 > this.cursorY) {
         this.cursorX = 0;
         this.cursorY++;
-        const scroll = true ? "\x1b[1T" : "";
         return "\r\x1B[B" + "\x1B[C".repeat(this.prompt.length);
       }
       return "";
