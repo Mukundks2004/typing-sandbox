@@ -1,3 +1,3 @@
 export const INITIAL_LANGUAGE_SELECTION = 'C#';
 
-export const LANGUAGE_OPTIONS = ['C#', 'Scala'] 
+export const LANGUAGE_OPTIONS = ['C#'] 

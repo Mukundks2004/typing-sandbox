@@ -5,7 +5,7 @@ class BasicRepl implements IRepl {
 
     Process(input: string): string {
         if (input.length === 0) return "";
-        return "your input was: " + input + "\r\n";
+        return "your input was: " + input + "\n";
     }
 }
 

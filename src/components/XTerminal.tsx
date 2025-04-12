@@ -51,12 +51,16 @@ function XTerminal() {
         theme: xtermjsTheme,
         letterSpacing: 1,
         cursorBlink: true,
+        convertEol: true,
+        tabStopWidth: 4,
       });
 
       termRef.current.open(terminalRef.current);
-      termRef.current.write(terminalInstanceRef.current!.prompt);
+      termRef.current.write(
+        terminalInstanceRef.current!.activeReplManager.prompt
+      );
 
-      termRef.current.resize(80, 24);
+      termRef.current.resize(82, 24);
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstanceRef.current!.onKey(key));
@@ -93,7 +97,7 @@ function XTerminal() {
       >
         <div
           style={{
-            width: "850px",
+            width: "810px",
             padding: "20px",
             boxSizing: "border-box",
             backgroundColor: "#2D2E2C",

@@ -73,15 +73,15 @@ function DocsPage() {
         <h2 id="about">About</h2>
         <p>
           The Typing Sandbox is an interactive REPL for investigating the
-          behaviors and interactions of types in statically, strongly typed OO
+          behaviours and interactions of types in statically, strongly typed
           programming languages. To use the Sandbox first select your language
-          of choice from the dropdown. As of writing, only C# and Scala are
-          supported but there are plans to provide support for Java, Swift and
-          C++ in the near future. Then you may start defining types, and the
-          REPL will either allow the definition or throw an exception. Finally,
-          you can dynamically inspect the types by using commands such as{" "}
-          <kbd>:info</kbd>, <kbd>:kind</kbd>, <kbd>:variant</kbd> and{" "}
-          <kbd>:tree</kbd>.
+          of choice from the dropdown. As of writing, only C# is supported but
+          there are plans to provide support for Scala, Java, Swift and C++ in
+          the near future. Then you may start defining types (and terms), and
+          the REPL will either allow the declaration/definition or throw an
+          exception. Finally, you can dynamically inspect the types by using
+          commands such as <kbd>:info</kbd>, <kbd>:kind</kbd>,{" "}
+          <kbd>:variance</kbd> and <kbd>:tree</kbd>.
         </p>
 
         <p>
@@ -90,10 +90,9 @@ function DocsPage() {
             Xterm.js
           </a>
           . All typing functionality is implemented in TypeScript based off the
-          language specification. The goal of this app is to create a fun and
-          easy way for junior developers and less experienced programmers to
-          understand the capabilities and limitations of some popular
-          programming languages.
+          relevant language specification. The goal of this app is to create a
+          fun and easy way for new programmers to understand the capabilities
+          and limitations of the type systems of popular programming languages.
         </p>
 
         {/* dont forget abstarct information with types? */}
@@ -103,15 +102,15 @@ function DocsPage() {
         <h2 id="csharp">C#</h2>
 
         <p>
-          C# is a general purpose OO langauge that features both classes and
-          interfaces and subtype polymorphism. It allows for types to contain
-          metadata such as if they are abstract, sealed, static or partial. C#
-          is also classically expressive, with support for generics, generic
-          constraints and declaration-site variance on interfaces. C# is an
-          extremely popular language due to its simplicity, accessibility and
-          wide range of features creating a pleasant experience for developers.
-          It is a great starting ground for users to explore the fundamentals of
-          typing and typing relationships.
+          C# is a general purpose OO langauge that features classes, interfaces
+          and subtype polymorphism. It allows for types to contain metadata such
+          as if they are abstract, sealed, static or partial. It is also
+          classically expressive, with support for generics, generic constraints
+          and declaration-site variance on interfaces. C# is an extremely
+          popular language due to its simplicity, accessibility and wide range
+          of features creating a pleasant experience for developers. It is a
+          great starting ground for users to explore the fundamentals of typing
+          and type relationships.
         </p>
 
         <br />
@@ -120,27 +119,26 @@ function DocsPage() {
 
         <p>
           Scala is both an OO and functional language. The functional paradigm
-          encourages code to be written in a certain way- such as making
+          encourages code to be written in a certain way- it encourages making
           functions pure, making data immutable, and calling generic class
           definitions 'type constructors'. It is more involved than C# and less
           friendly to new programmers. One of Scala's more renowned features is
           its characteristic adoption of higher-kinded types for functional
-          programming. Perhaps most famous is the Functor, which is defined as a
-          trait: <samp>trait Functor[F[_]]</samp>, which has kind{" "}
-          <samp>(* -&gt; *) -&gt; *</samp> (try it in the REPL!) as it abstracts
-          over <samp>F</samp>. Functors are used to map over generic data
-          structures themselves, such as a <samp>List</samp> or{" "}
-          <samp>Future</samp>, either of which could be of type <samp>Int</samp>{" "}
-          or <samp>Boolean</samp>. A functor will map the inner type from{" "}
-          <samp>A</samp> to <samp>B</samp> without caring what the intermediary
-          type is.
+          programming. The most famous of these is the Functor, which is defined
+          as a trait: <samp>trait Functor[F[_]]</samp>, which has kind{" "}
+          <samp>(* -&gt; *) -&gt; *</samp> (try it in the REPL!) as it is a type
+          constructor that accepts a type constructor. Functors are a generic
+          data structure used to map over generic data structures, such as a{" "}
+          <samp>List</samp> or <samp>Future</samp>. A functor will map the
+          innermost type from <samp>A</samp> to <samp>B</samp> while preserving
+          the intermediary 'wrapping' type.
         </p>
 
         <p>
           Scala also supports both declaration-site and use-site variance,
           including variance for read-only classes. Use-site variance in
           particular works closely with Scala's upper and lower bounds on types.
-          Later versions of scala natively support union and intersection types
+          Later versions of Scala natively support union and intersection types
           using <samp>&</samp> and <samp>|</samp>. Finally, wildcards allow for
           greater flexibility than generics as they don't need to resolve to a
           single type at compile time. Wildcards in particular are{" "}
@@ -150,7 +148,7 @@ function DocsPage() {
           >
             strictly more powerful
           </a>{" "}
-          than use-site variance. Have fun exploring the limits of what scala
+          than use-site variance. Good luck exploring the limits of what Scala
           will and won't type-check.
         </p>
 
@@ -161,9 +159,13 @@ function DocsPage() {
           What does it mean for one typing system to be strictly more powerful
           than another? Well in one sense, all it means is that there are things
           you can do (types and conditions on types you can encode) in the first
-          system for which there is no equivalent in the other, whilst
-          everything expressible in the second is recreatable in the first.
-          However, there is also a more nuanced answer.
+          system for which there is no equivalent in the second, whilst
+          everything{" "}
+          <a className="link-no-decoration" href="">
+            expressible
+          </a>{" "}
+          in the second is recreatable in the first. However, there is also a
+          more nuanced answer.
         </p>
 
         <p>
@@ -172,14 +174,14 @@ function DocsPage() {
           mathematical statements and proofs in the framework of type systems.
           Type theory markets itself as an alternate foundation of mathemtics,
           as opposed to the more widely recognized set theory. Unlike in set
-          theory, type theory is concerned with Types and Terms. Through rules
+          theory, type theory is concerned with types and terms. Through rules
           of inference one can make deductions in a{" "}
           <a
             className="link-no-decoration"
             href="https://en.wikipedia.org/wiki/Formal_system"
           >
             formal type system
-          </a>{" "}
+          </a>
           . Using the REPL to define types and procedurally construct a program
           is similar to reasoning{" "}
           <a
@@ -213,7 +215,7 @@ function DocsPage() {
             className="link-no-decoration"
             href="https://en.wikipedia.org/wiki/First-order_logic"
           >
-            Predicate Logic
+            predicate logic
           </a>{" "}
           have the same 'power'. This is because both systems are built around
           hypotheticals. A proposition <samp>A -&gt; B</samp> says that{" "}
@@ -250,7 +252,7 @@ function DocsPage() {
             className="link-no-decoration"
             href="https://en.wikipedia.org/wiki/Homotopy_theory"
           >
-            hsomotopy theory
+            homotopy theory
           </a>
           . Homotopy theory is a branch of{" "}
           <a
@@ -259,16 +261,16 @@ function DocsPage() {
           >
             Algebraic Topology
           </a>{" "}
-          concerned with the "sameness" of topological spaces, such as the
-          equivalence of S<sup>1</sup> and R<sup>2</sup> - &#123;0&#125;. In
-          type theory, since there may be many terms in a type, it may be
-          possible for a theorm to be true in many distinct ways. HoTT makes
-          types behave less like a collection of terms and more like rich
-          mathematical structures determined by their elements, proofs of
-          equality of elements, proofs of equality of proofs of equality of
-          elements and so on. This makes it really convenient to treat terms in
-          a type like points in a space. After taking these steps, it is now
-          possible to define spaces in a{" "}
+          concerned with examining and proving the "sameness" of topological
+          spaces, such as the equivalence of S<sup>1</sup> and R<sup>2</sup> -
+          &#123;0&#125;. In type theory, since there may be many terms in a
+          type, it may be possible for a theorm to be true in many distinct
+          ways. HoTT makes types behave less like a collection of terms and more
+          like mathematical structures determined by their elements, proofs of
+          equality of the elements, proofs of equality of proofs of equality of
+          the elements and so on. This makes it really convenient to treat terms
+          in a type like points in a topological space. After taking these
+          steps, it is now possible to define spaces in a{" "}
           <a
             className="link-no-decoration"
             href="https://ncatlab.org/nlab/show/synthetic+homotopy+theory"
@@ -281,8 +283,8 @@ function DocsPage() {
 
         <p>
           I hope you found this footnote interesting! If you have any questions,
-          feel free to message me on GitHub. If you have corrections, I am
-          accepting PRs.
+          feel free to message me on GitHub. If you have sugestions, corrections
+          or comments please submit a PR.
         </p>
 
         <br />
