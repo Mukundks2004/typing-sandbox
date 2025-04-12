@@ -1,7 +1,7 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import { useState } from "react";
-import { LANGUAGE_OPTIONS } from "../constants/constants";
+import { LANGUAGE_OPTIONS } from "../constants/SandboxConstants";
 
 function Dropdown({
   initialSelection,

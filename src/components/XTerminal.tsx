@@ -2,9 +2,14 @@ import { Terminal } from "@xterm/xterm";
 import { useEffect, useRef, useState } from "react";
 import "@xterm/xterm/css/xterm.css";
 import "../App.css";
-import TerminalInstance from "../terminal/TerminalInstance";
+import TerminalService from "../terminal/TerminalService";
 import Dropdown from "./Dropdown";
-import { INITIAL_LANGUAGE_SELECTION } from "../constants/Constants";
+import {
+  INITIAL_LANGUAGE_SELECTION,
+  SHELL_PROMPT,
+  TAB_STOP_WIDTH,
+  TERMINAL_WIDTH,
+} from "../constants/SandboxConstants";
 
 const xtermjsTheme = {
   foreground: "#F8F8F8",
@@ -31,12 +36,15 @@ const xtermjsTheme = {
 function XTerminal() {
   const terminalRef = useRef<HTMLDivElement | null>(null);
   const termRef = useRef<Terminal | null>(null);
-  const terminalInstanceRef = useRef<TerminalInstance | null>(null);
+  const terminalInstanceRef = useRef<TerminalService | null>(null);
   const [selectedLang, setSelectedLang] = useState(INITIAL_LANGUAGE_SELECTION);
 
   useEffect(() => {
     if (!terminalInstanceRef.current) {
-      terminalInstanceRef.current = new TerminalInstance();
+      terminalInstanceRef.current = new TerminalService(
+        SHELL_PROMPT,
+        TERMINAL_WIDTH - SHELL_PROMPT.length
+      );
     }
 
     if (!terminalRef.current) {
@@ -52,26 +60,25 @@ function XTerminal() {
         letterSpacing: 1,
         cursorBlink: true,
         convertEol: true,
-        tabStopWidth: 4,
+        tabStopWidth: TAB_STOP_WIDTH,
       });
 
       termRef.current.open(terminalRef.current);
-      termRef.current.write(
-        terminalInstanceRef.current!.activeReplManager.prompt
-      );
+      termRef.current.write(terminalInstanceRef.current!.prompt);
 
-      termRef.current.resize(82, 24);
+      termRef.current.resize(TERMINAL_WIDTH, 24);
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstanceRef.current!.onKey(key));
+        terminalInstanceRef.current!.replService.PrintDebugInfo();
+        console.log(termRef.current!.buffer.active.cursorX);
       });
     }
   }, []);
 
   const handleLangChange = (newLang: string) => {
     setSelectedLang(newLang);
-    terminalInstanceRef.current!.SetRepl(newLang);
-    terminalInstanceRef.current!.Clear();
+    terminalInstanceRef.current!.replService.ChangeLanguageService(newLang);
     termRef.current?.clear();
   };
 
@@ -97,7 +104,7 @@ function XTerminal() {
       >
         <div
           style={{
-            width: "810px",
+            width: "800px",
             padding: "20px",
             boxSizing: "border-box",
             backgroundColor: "#2D2E2C",
