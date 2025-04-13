@@ -1,7 +1,7 @@
-import ILanguageService from "../languages/language-abstractions/ILanguageService";
+import ILanguageEngine from "../languages/language-abstractions/ILanguageEngine";
 
 interface IReplService {
-  languageService: ILanguageService;
+  languageEngine: ILanguageEngine;
   Process(input: string[]): string;
   CurrentCommandIsLatest(): boolean;
   CurrentCommandIsOldest(): boolean;

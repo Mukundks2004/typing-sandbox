@@ -1,13 +1,13 @@
-import ILanguageService from "../language-abstractions/ILanguageService";
-import MukLanguageService from "../muk-lang/MukLanguageService";
+import ILanguageEngine from "../language-abstractions/ILanguageEngine";
+import MukLanguageEngine from "../muk-lang/MukLanguageEngine";
 
 export default class LanguageFactory {
-  GetLanguageServiceFromString(languageName: string): ILanguageService {
+  GetLanguageEngineFromString(languageName: string): ILanguageEngine {
     switch (languageName) {
       case "Muk":
-        return new MukLanguageService();
+        return new MukLanguageEngine();
       default:
-        return new MukLanguageService();
+        return new MukLanguageEngine();
     }
   }
 }

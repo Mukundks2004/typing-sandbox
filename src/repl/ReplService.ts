@@ -1,18 +1,17 @@
-import { EMPTY } from "../constants/SandboxConstants";
 import LanguageFactory from "../languages/factory/LanguageFactory";
-import ILanguageService from "../languages/language-abstractions/ILanguageService";
+import ILanguageEngine from "../languages/language-abstractions/ILanguageEngine";
 import IReplService from "./IReplService";
 
 class ReplService implements IReplService {
-  languageService: ILanguageService;
+  languageEngine: ILanguageEngine;
   history: string[][] = [];
   stackPointer: number = 0;
   languageFactory: LanguageFactory;
 
   constructor(language: string) {
     this.languageFactory = new LanguageFactory();
-    this.languageService =
-      this.languageFactory.GetLanguageServiceFromString(language);
+    this.languageEngine =
+      this.languageFactory.GetLanguageEngineFromString(language);
   }
 
   Reset(): void {
@@ -21,8 +20,8 @@ class ReplService implements IReplService {
   }
 
   ChangeLanguage(newLang: string, keepHistory: boolean = false): void {
-    this.languageService =
-      this.languageFactory.GetLanguageServiceFromString(newLang);
+    this.languageEngine =
+      this.languageFactory.GetLanguageEngineFromString(newLang);
     if (!keepHistory) {
       this.Reset();
     }
@@ -60,7 +59,7 @@ class ReplService implements IReplService {
   }
 
   Process(input: string[]): string {
-    return this.languageService.Execute(input.join("\n")) + "\n";
+    return this.languageEngine.Execute(input) + "\n";
   }
 
   PrintDebugInfo(): void {

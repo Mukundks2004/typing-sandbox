@@ -7,6 +7,8 @@ interface ILanguageEngine
   extends ILexicalAnalyser,
     ISyntacticAnalyser,
     ISemanticAnalyser,
-    IInterpreter {}
+    IInterpreter {
+  Execute(input: string[]): string;
+}
 
 export default ILanguageEngine;

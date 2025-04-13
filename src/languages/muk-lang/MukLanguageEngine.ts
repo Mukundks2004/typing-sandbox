@@ -15,6 +15,10 @@ class MukLanguageEngine implements ILanguageEngine {
   Interpret(root: AstNode): string {
     throw new Error(`Method not implemented, cannot process ${root}.`);
   }
+
+  Execute(_: string[]): string {
+    return "lol";
+  }
 }
 
 export default MukLanguageEngine;
