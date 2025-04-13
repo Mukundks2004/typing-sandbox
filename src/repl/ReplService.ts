@@ -1,14 +1,31 @@
+import { EMPTY } from "../constants/SandboxConstants";
+import LanguageFactory from "../languages/factory/LanguageFactory";
 import ILanguageService from "../languages/language-abstractions/ILanguageService";
-import MukLanguageService from "../languages/muk-lang/MukLanguageService";
 import IReplService from "./IReplService";
 
 class ReplService implements IReplService {
   languageService: ILanguageService;
   history: string[][] = [];
   stackPointer: number = 0;
+  languageFactory: LanguageFactory;
 
-  constructor() {
-    this.languageService = new MukLanguageService();
+  constructor(language: string) {
+    this.languageFactory = new LanguageFactory();
+    this.languageService =
+      this.languageFactory.GetLanguageServiceFromString(language);
+  }
+
+  Reset(): void {
+    this.history = [];
+    this.stackPointer = 0;
+  }
+
+  ChangeLanguage(newLang: string, keepHistory: boolean = false): void {
+    this.languageService =
+      this.languageFactory.GetLanguageServiceFromString(newLang);
+    if (!keepHistory) {
+      this.Reset();
+    }
   }
 
   CurrentCommandIsLatest(): boolean {
@@ -42,19 +59,8 @@ class ReplService implements IReplService {
     this.stackPointer = this.history.length;
   }
 
-  ChangeLanguageService(newLanguage: string): void {
-    switch (newLanguage) {
-      case "Muk":
-        this.languageService = new MukLanguageService();
-        break;
-      default:
-        break;
-    }
-  }
-
   Process(input: string[]): string {
-    console.log(input.join(""));
-    return input.join("\n") + "\n";
+    return this.languageService.Execute(input.join("\n")) + "\n";
   }
 
   PrintDebugInfo(): void {

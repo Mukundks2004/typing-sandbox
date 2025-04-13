@@ -48,7 +48,8 @@ function XTerminal() {
     if (!terminalInstanceRef.current) {
       terminalInstanceRef.current = new TerminalService(
         SHELL_PROMPT,
-        TERMINAL_WIDTH - SHELL_PROMPT.length
+        TERMINAL_WIDTH - SHELL_PROMPT.length,
+        selectedLang
       );
     }
 
@@ -56,7 +57,7 @@ function XTerminal() {
       termRef.current = new Terminal({
         allowProposedApi: true,
         windowsMode: true,
-        fontFamily: '"WindowsTerminalFont", monospace',
+        fontFamily: '"Cascadia Mono", monospace',
         theme: xtermjsTheme,
         letterSpacing: 1,
         cursorBlink: true,
@@ -71,14 +72,13 @@ function XTerminal() {
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstanceRef.current!.onKey(key));
-        // terminalInstanceRef.current!.replService.PrintDebugInfo();
       });
     }
   }, []);
 
   const handleLangChange = (newLang: string) => {
     setSelectedLang(newLang);
-    terminalInstanceRef.current!.replService.ChangeLanguageService(newLang);
+    terminalInstanceRef.current!.replService.ChangeLanguage(newLang);
     termRef.current?.clear();
   };
 
@@ -104,7 +104,7 @@ function XTerminal() {
       >
         <div
           style={{
-            width: "800px",
+            width: "840px",
             padding: "20px",
             boxSizing: "border-box",
             backgroundColor: "#2D2E2C",

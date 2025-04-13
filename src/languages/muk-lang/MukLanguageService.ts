@@ -10,6 +10,7 @@ class MukLanguageService implements ILanguageService {
   }
 
   Execute(input: string): string {
+    console.log(input);
     return input;
   }
 }

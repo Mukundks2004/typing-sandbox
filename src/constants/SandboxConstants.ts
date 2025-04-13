@@ -13,7 +13,6 @@ export const DOWN = "\x1B[B";
 export const RIGHT = "\x1B[C";
 export const LEFT = "\x1B[D";
 
-// This does both return to start and a new line
 export const NEWLINE = "\n";
 export const SPACE = " ";
 export const EMPTY = "";

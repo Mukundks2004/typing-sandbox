@@ -1,5 +1,5 @@
-.navbar a{
-  font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+.navbar a {
+  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
 }
 
 .navbar-img {
@@ -10,19 +10,19 @@
 
 .selected-option {
   width: 500px;
-  margin-left: auto; 
+  margin-left: auto;
   display: flex;
   justify-content: space-between;
-  align-items: center; 
+  align-items: center;
 }
 
 .windows-terminal {
-  font-family: 'WindowsTerminalFont';
+  font-family: "WindowsTerminalFont";
 }
 
 @font-face {
-  font-family: 'WindowsTerminalFont';
-  src: url('/fonts/Cascadia.ttf');
+  font-family: "WindowsTerminalFont";
+  src: url("/fonts/CascadiaMono.otf");
 }
 
 body a {
@@ -44,8 +44,8 @@ body h2 {
 }
 
 .code-block {
-  background-color: #F9F9F9;
-  border: 1px solid #D4D4D4;
+  background-color: #f9f9f9;
+  border: 1px solid #d4d4d4;
   border-radius: 10px;
   padding: 20px;
   color: #555555;

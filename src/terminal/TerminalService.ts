@@ -23,7 +23,7 @@ import ReplService from "../repl/ReplService";
 import ITerminalService from "./ITerminalService";
 
 class TerminalService implements ITerminalService {
-  replService: IReplService = new ReplService();
+  replService: IReplService;
   prompt: string;
   promptLen: number;
   lineLength: number;
@@ -31,10 +31,15 @@ class TerminalService implements ITerminalService {
   cursorY: number = 0;
   currentLine: string[] = [EMPTY];
 
-  constructor(providedPrompt = "$ ", lineLength: number) {
+  constructor(
+    providedPrompt: string,
+    lineLength: number,
+    defaultLanguage: string
+  ) {
     this.prompt = providedPrompt;
     this.lineLength = lineLength;
     this.promptLen = this.prompt.length;
+    this.replService = new ReplService(defaultLanguage);
   }
 
   onKey(key: { key: string; domEvent: KeyboardEvent }): string {

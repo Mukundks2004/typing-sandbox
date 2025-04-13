@@ -2,7 +2,6 @@ import ILanguageService from "../languages/language-abstractions/ILanguageServic
 
 interface IReplService {
   languageService: ILanguageService;
-  ChangeLanguageService(newLanguage: string): void;
   Process(input: string[]): string;
   CurrentCommandIsLatest(): boolean;
   CurrentCommandIsOldest(): boolean;
@@ -11,6 +10,8 @@ interface IReplService {
   GetCurrentCommand(): string[];
   PushCommand(input: string[]): void;
   PrintDebugInfo(): void;
+  Reset(): void;
+  ChangeLanguage(newLang: string, keepHistory?: boolean): void;
 }
 
 export default IReplService;

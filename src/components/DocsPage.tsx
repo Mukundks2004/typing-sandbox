@@ -75,13 +75,15 @@ function DocsPage() {
           The Typing Sandbox is an interactive REPL for investigating the
           behaviours and interactions of types in statically, strongly typed
           programming languages. To use the Sandbox first select your language
-          of choice from the dropdown. As of writing, only C# is supported but
-          there are plans to provide support for Scala, Java, Swift and C++ in
-          the near future. Then you may start defining types (and terms), and
-          the REPL will either allow the declaration/definition or throw an
-          exception. Finally, you can dynamically inspect the types by using
-          commands such as <kbd>:info</kbd>, <kbd>:kind</kbd>,{" "}
-          <kbd>:variance</kbd> and <kbd>:tree</kbd>.
+          of choice from the dropdown. As of writing, only my custom language
+          MukLang is supported but there are plans to provide support for C#,
+          Scala, Java, Swift and C in the near future. C# and Scala in
+          particular have already been drafted. Then you may start defining
+          types (and terms), and the REPL will either allow the
+          declaration/definition or throw an exception. Finally, you can
+          dynamically inspect the types by using commands such as{" "}
+          <kbd>:info</kbd>, <kbd>:kind</kbd>, <kbd>:variance</kbd> and{" "}
+          <kbd>:tree</kbd>.
         </p>
 
         <p>
