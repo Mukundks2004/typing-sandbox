@@ -71,8 +71,7 @@ function XTerminal() {
 
       termRef.current.onKey((key, _) => {
         termRef.current!.write(terminalInstanceRef.current!.onKey(key));
-        terminalInstanceRef.current!.replService.PrintDebugInfo();
-        console.log(termRef.current!.buffer.active.cursorX);
+        // terminalInstanceRef.current!.replService.PrintDebugInfo();
       });
     }
   }, []);

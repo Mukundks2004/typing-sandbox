@@ -1,4 +1,15 @@
-import { TAB_STOP_WIDTH, TERMINAL_HEIGHT } from "../constants/SandboxConstants";
+import {
+  TAB_STOP_WIDTH,
+  UP,
+  DOWN,
+  LEFT,
+  RIGHT,
+  INSERT_LINE,
+  DELETE_LINE,
+  DELETE_CHAR,
+  NEWLINE,
+} from "../constants/SandboxConstants";
+
 import IReplService from "../repl/IReplService";
 import ReplService from "../repl/ReplService";
 import ITerminalService from "./ITerminalService";
@@ -19,7 +30,7 @@ class TerminalService implements ITerminalService {
   onKey(key: { key: string; domEvent: KeyboardEvent }): string {
     const pressedKey = key.key;
     // up
-    if (pressedKey === "\x1B[A") {
+    if (pressedKey === UP) {
       if (!this.replService.CurrentCommandIsOldest()) {
         const linesToGoUntilEndBeforeUpKeyPressed =
           this.currentLine.length - this.cursorY - 1;
@@ -34,12 +45,13 @@ class TerminalService implements ITerminalService {
           this.currentLine.join("\n" + " ".repeat(this.prompt.length));
         this.cursorY = this.currentLine.length - 1;
         this.cursorX = this.currentLine[this.cursorY].length;
+        console.log("new after up:", this.cursorX, this.cursorY);
         return result;
       }
       return "";
     }
     // down
-    if (pressedKey === "\x1B[B") {
+    if (pressedKey === DOWN) {
       if (!this.replService.CurrentCommandIsLatest()) {
         const linesToGoUntilEndBeforeDownKeyPressed =
           this.currentLine.length - this.cursorY - 1;
@@ -59,24 +71,37 @@ class TerminalService implements ITerminalService {
       return "";
     }
     if (pressedKey === "\x1B\r") {
+      const ogX = this.cursorX;
+      const ogY = this.cursorY;
+      const endY = this.currentLine.length - 1;
+      const endX = this.currentLine[endY].length;
+      const distanceToGoDown = endY - ogY;
       this.currentLine = splitStringAt(
         this.currentLine,
         this.cursorY,
         this.cursorX
       );
+      const firstHalfOfSplitString = this.currentLine[this.cursorY];
       this.cursorX = 0;
       this.cursorY++;
       const secondHalfOfSplitString = this.currentLine[this.cursorY];
-
       const result =
-        "\x1b[P".repeat(secondHalfOfSplitString.length) +
-        "\x1B[B\r" +
-        "\x1B[L" +
+        "\r" +
+        DOWN.repeat(distanceToGoDown) +
+        RIGHT.repeat(endX) +
+        "\n" +
+        (DELETE_LINE + UP).repeat(distanceToGoDown + 1) +
+        RIGHT.repeat(this.prompt.length + firstHalfOfSplitString.length) +
+        DELETE_CHAR.repeat(secondHalfOfSplitString.length) +
+        "\n" +
         " ".repeat(this.prompt.length) +
-        secondHalfOfSplitString +
-        "\x1B[D".repeat(secondHalfOfSplitString.length);
+        this.currentLine
+          .slice(this.cursorY)
+          .join("\n" + " ".repeat(this.prompt.length)) +
+        "\r" +
+        UP.repeat(distanceToGoDown) +
+        RIGHT.repeat(this.prompt.length);
 
-      console.log("xy", this.cursorX, this.cursorY, this.currentLine);
       return result;
     }
     if (pressedKey === "\r") {
@@ -86,16 +111,24 @@ class TerminalService implements ITerminalService {
         this.cursorY = 0;
         return "\n" + this.prompt;
       }
-      const whitespaceCount = countWhitespaceElements(this.currentLine);
+      const totalLength = this.currentLine.length;
+      const lengthOfLastLineInCurrentLine =
+        this.currentLine[this.currentLine.length - 1].length;
       this.currentLine = removeWhitespaceElements(this.currentLine);
       this.replService.PushCommand(this.currentLine);
       const result = this.replService.Process(this.currentLine);
-      const linesToGo =
-        this.currentLine.length + whitespaceCount - this.cursorY;
+      const linesToGo = totalLength - this.cursorY - 1;
       this.currentLine = [""];
       this.cursorX = 0;
       this.cursorY = 0;
-      return "\x1B[B".repeat(linesToGo) + "\r" + result + this.prompt;
+      return (
+        "\x1B[B".repeat(linesToGo) +
+        "\r" +
+        "\x1B[C".repeat(lengthOfLastLineInCurrentLine) +
+        "\n" +
+        result +
+        this.prompt
+      );
     }
     if (pressedKey === "\x7F") {
       if (this.cursorX > 0) {
@@ -109,7 +142,6 @@ class TerminalService implements ITerminalService {
       if (this.currentLine.length > 1) {
         this.currentLine = this.currentLine.slice(0, -1);
         this.cursorX = this.currentLine[this.currentLine.length - 1].length;
-        console.log("cursor:", this.cursorX);
         this.cursorY--;
         return (
           "\x1b[1M" +
@@ -126,10 +158,10 @@ class TerminalService implements ITerminalService {
         " ".repeat(TAB_STOP_WIDTH);
       return " ".repeat(TAB_STOP_WIDTH);
     }
-    if (pressedKey === "\x1B[C") {
+    if (pressedKey === RIGHT) {
       if (this.cursorX < this.currentLine[this.cursorY].length) {
         this.cursorX++;
-        return "\x1B[C";
+        return RIGHT;
       }
       if (this.currentLine.length - 1 > this.cursorY) {
         this.cursorX = 0;
@@ -138,10 +170,10 @@ class TerminalService implements ITerminalService {
       }
       return "";
     }
-    if (pressedKey === "\x1B[D") {
+    if (pressedKey === LEFT) {
       if (this.cursorX > 0) {
         this.cursorX--;
-        return "\x1B[D";
+        return LEFT;
       }
       if (this.cursorY > 0) {
         this.cursorY--;
@@ -172,7 +204,6 @@ class TerminalService implements ITerminalService {
           "\x1B[D".repeat(charCountOfNextLine)
         );
       }
-      console.log("at the end");
       return "";
     }
 
