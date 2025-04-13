@@ -1,4 +1,4 @@
-import ILanguageEngine from "./language-abstractions/ILanguageEngine";
+import ILanguageEngine from "./ILanguageEngine";
 
 interface ILanguageService {
   engine: ILanguageEngine;

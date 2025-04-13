@@ -1,4 +1,4 @@
-import ILanguageService from "../ILanguageService";
+import ILanguageService from "../language-abstractions/ILanguageService";
 import ILanguageEngine from "../language-abstractions/ILanguageEngine";
 import MukLanguageEngine from "../muk-lang/MukLanguageEngine";
 

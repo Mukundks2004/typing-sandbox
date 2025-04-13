@@ -1,4 +1,4 @@
-import ILanguageService from "../languages/ILanguageService";
+import ILanguageService from "../languages/language-abstractions/ILanguageService";
 
 interface IReplService {
   languageService: ILanguageService;

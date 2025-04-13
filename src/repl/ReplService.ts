@@ -1,4 +1,4 @@
-import ILanguageService from "../languages/ILanguageService";
+import ILanguageService from "../languages/language-abstractions/ILanguageService";
 import MukLanguageService from "../languages/muk-lang/MukLanguageService";
 import IReplService from "./IReplService";
 
@@ -27,15 +27,11 @@ class ReplService implements IReplService {
   MoveToNextNewerCommand(): void {
     if (this.stackPointer < this.history.length - 1) {
       this.stackPointer++;
-    } else {
-      console.log("no newer command!");
     }
   }
   MoveToPreviousOlderCommand(): void {
     if (this.stackPointer > 0) {
       this.stackPointer--;
-    } else {
-      console.log("no older command!");
     }
   }
   GetCurrentCommand(): string[] {

@@ -4,10 +4,18 @@ import {
   DOWN,
   LEFT,
   RIGHT,
-  INSERT_LINE,
+  INSERT_CHAR,
+  TAB,
+  ALT_ENTER,
+  EMPTY,
   DELETE_LINE,
   DELETE_CHAR,
+  SPACE,
   NEWLINE,
+  CARRIAGE_RETURN,
+  BACKSPACE,
+  DELETE_KEY,
+  TERMINAL_WIDTH,
 } from "../constants/SandboxConstants";
 
 import IReplService from "../repl/IReplService";
@@ -17,19 +25,20 @@ import ITerminalService from "./ITerminalService";
 class TerminalService implements ITerminalService {
   replService: IReplService = new ReplService();
   prompt: string;
+  promptLen: number;
   lineLength: number;
   cursorX: number = 0;
   cursorY: number = 0;
-  currentLine: string[] = [""];
+  currentLine: string[] = [EMPTY];
 
   constructor(providedPrompt = "$ ", lineLength: number) {
     this.prompt = providedPrompt;
     this.lineLength = lineLength;
+    this.promptLen = this.prompt.length;
   }
 
   onKey(key: { key: string; domEvent: KeyboardEvent }): string {
     const pressedKey = key.key;
-    // up
     if (pressedKey === UP) {
       if (!this.replService.CurrentCommandIsOldest()) {
         const linesToGoUntilEndBeforeUpKeyPressed =
@@ -38,19 +47,17 @@ class TerminalService implements ITerminalService {
         this.replService.MoveToPreviousOlderCommand();
         this.currentLine = this.replService.GetCurrentCommand();
         const result =
-          "\x1B[B".repeat(linesToGoUntilEndBeforeUpKeyPressed) +
-          "\x1b[1M\x1B[A".repeat(linesInCommandBeforeUpKeyPressed - 1) +
-          "\x1b[1M" +
+          DOWN.repeat(linesToGoUntilEndBeforeUpKeyPressed) +
+          (DELETE_LINE + UP).repeat(linesInCommandBeforeUpKeyPressed - 1) +
+          DELETE_LINE +
           this.prompt +
-          this.currentLine.join("\n" + " ".repeat(this.prompt.length));
+          this.currentLine.join(NEWLINE + SPACE.repeat(this.promptLen));
         this.cursorY = this.currentLine.length - 1;
         this.cursorX = this.currentLine[this.cursorY].length;
-        console.log("new after up:", this.cursorX, this.cursorY);
         return result;
       }
-      return "";
+      return EMPTY;
     }
-    // down
     if (pressedKey === DOWN) {
       if (!this.replService.CurrentCommandIsLatest()) {
         const linesToGoUntilEndBeforeDownKeyPressed =
@@ -59,18 +66,18 @@ class TerminalService implements ITerminalService {
         this.replService.MoveToNextNewerCommand();
         this.currentLine = this.replService.GetCurrentCommand();
         const result =
-          "\x1B[B".repeat(linesToGoUntilEndBeforeDownKeyPressed) +
-          "\x1b[1M\x1B[A".repeat(linesInCommandBeforeDownKeyPressed - 1) +
-          "\x1b[1M" +
+          DOWN.repeat(linesToGoUntilEndBeforeDownKeyPressed) +
+          (DELETE_LINE + UP).repeat(linesInCommandBeforeDownKeyPressed - 1) +
+          DELETE_LINE +
           this.prompt +
-          this.currentLine.join("\n" + " ".repeat(this.prompt.length));
+          this.currentLine.join(NEWLINE + SPACE.repeat(this.promptLen));
         this.cursorY = this.currentLine.length - 1;
         this.cursorX = this.currentLine[this.cursorY].length;
         return result;
       }
-      return "";
+      return EMPTY;
     }
-    if (pressedKey === "\x1B\r") {
+    if (pressedKey === ALT_ENTER) {
       const ogX = this.cursorX;
       const ogY = this.cursorY;
       const endY = this.currentLine.length - 1;
@@ -81,35 +88,34 @@ class TerminalService implements ITerminalService {
         this.cursorY,
         this.cursorX
       );
-      const firstHalfOfSplitString = this.currentLine[this.cursorY];
       this.cursorX = 0;
       this.cursorY++;
       const secondHalfOfSplitString = this.currentLine[this.cursorY];
       const result =
-        "\r" +
+        CARRIAGE_RETURN +
         DOWN.repeat(distanceToGoDown) +
         RIGHT.repeat(endX) +
-        "\n" +
+        NEWLINE +
         (DELETE_LINE + UP).repeat(distanceToGoDown + 1) +
-        RIGHT.repeat(this.prompt.length + firstHalfOfSplitString.length) +
+        RIGHT.repeat(this.promptLen + ogX) +
         DELETE_CHAR.repeat(secondHalfOfSplitString.length) +
-        "\n" +
-        " ".repeat(this.prompt.length) +
+        NEWLINE +
+        SPACE.repeat(this.promptLen) +
         this.currentLine
           .slice(this.cursorY)
-          .join("\n" + " ".repeat(this.prompt.length)) +
-        "\r" +
+          .join(NEWLINE + SPACE.repeat(this.promptLen)) +
+        CARRIAGE_RETURN +
         UP.repeat(distanceToGoDown) +
-        RIGHT.repeat(this.prompt.length);
+        RIGHT.repeat(this.promptLen);
 
       return result;
     }
-    if (pressedKey === "\r") {
+    if (pressedKey === CARRIAGE_RETURN) {
       if (isJustWhitespace(this.currentLine)) {
-        this.currentLine = [""];
+        this.currentLine = [EMPTY];
         this.cursorX = 0;
         this.cursorY = 0;
-        return "\n" + this.prompt;
+        return NEWLINE + this.prompt;
       }
       const totalLength = this.currentLine.length;
       const lengthOfLastLineInCurrentLine =
@@ -118,45 +124,42 @@ class TerminalService implements ITerminalService {
       this.replService.PushCommand(this.currentLine);
       const result = this.replService.Process(this.currentLine);
       const linesToGo = totalLength - this.cursorY - 1;
-      this.currentLine = [""];
+      this.currentLine = [EMPTY];
       this.cursorX = 0;
       this.cursorY = 0;
       return (
-        "\x1B[B".repeat(linesToGo) +
-        "\r" +
-        "\x1B[C".repeat(lengthOfLastLineInCurrentLine) +
-        "\n" +
+        DOWN.repeat(linesToGo) +
+        CARRIAGE_RETURN +
+        RIGHT.repeat(lengthOfLastLineInCurrentLine) +
+        NEWLINE +
         result +
         this.prompt
       );
     }
-    if (pressedKey === "\x7F") {
+    if (pressedKey === BACKSPACE) {
       if (this.cursorX > 0) {
         this.currentLine[this.currentLine.length - 1] = removeNthCharacter(
           this.currentLine[this.currentLine.length - 1],
           this.cursorX - 1
         );
         this.cursorX--;
-        return "\x1B[D\x1b[P";
+        return LEFT + DELETE_CHAR;
       }
       if (this.currentLine.length > 1) {
         this.currentLine = this.currentLine.slice(0, -1);
         this.cursorX = this.currentLine[this.currentLine.length - 1].length;
         this.cursorY--;
-        return (
-          "\x1b[1M" +
-          "\x1B[A" +
-          "\x1B[C".repeat(this.cursorX + this.prompt.length)
-        );
+        return DELETE_LINE + UP + RIGHT.repeat(this.cursorX + this.promptLen);
       }
-      return "";
+      return EMPTY;
     }
-    if (pressedKey === "\t") {
+    if (pressedKey === TAB) {
+      this.currentLine[this.cursorY] =
+        this.currentLine[this.cursorY].slice(0, this.cursorX) +
+        SPACE.repeat(TAB_STOP_WIDTH) +
+        this.currentLine[this.cursorY].slice(this.cursorX);
       this.cursorX += TAB_STOP_WIDTH;
-      this.currentLine[this.currentLine.length - 1] =
-        this.currentLine[this.currentLine.length - 1] +
-        " ".repeat(TAB_STOP_WIDTH);
-      return " ".repeat(TAB_STOP_WIDTH);
+      return (INSERT_CHAR + SPACE).repeat(TAB_STOP_WIDTH);
     }
     if (pressedKey === RIGHT) {
       if (this.cursorX < this.currentLine[this.cursorY].length) {
@@ -166,9 +169,9 @@ class TerminalService implements ITerminalService {
       if (this.currentLine.length - 1 > this.cursorY) {
         this.cursorX = 0;
         this.cursorY++;
-        return "\r\x1B[B" + "\x1B[C".repeat(this.prompt.length);
+        return CARRIAGE_RETURN + DOWN + RIGHT.repeat(this.promptLen);
       }
-      return "";
+      return EMPTY;
     }
     if (pressedKey === LEFT) {
       if (this.cursorX > 0) {
@@ -178,44 +181,52 @@ class TerminalService implements ITerminalService {
       if (this.cursorY > 0) {
         this.cursorY--;
         this.cursorX = this.currentLine[this.cursorY].length;
-        return "\r\x1B[A" + "\x1B[C".repeat(this.cursorX + this.prompt.length);
+        return (
+          CARRIAGE_RETURN + UP + RIGHT.repeat(this.cursorX + this.promptLen)
+        );
       }
-      return "";
+      return EMPTY;
     }
-    if (pressedKey === "\x1B[3~") {
+    if (pressedKey === DELETE_KEY) {
       if (this.cursorX < this.currentLine[this.cursorY].length) {
         this.currentLine[this.cursorY] = removeNthCharacter(
           this.currentLine[this.cursorY],
           this.cursorX
         );
-        return "\x1b[P";
+        return DELETE_CHAR;
       }
       if (this.cursorY < this.currentLine.length) {
         const charCountBeforeDelete = this.currentLine[this.cursorY].length;
         const charCountOfNextLine = this.currentLine[this.cursorY + 1].length;
         this.currentLine = mergeAtIndex(this.currentLine, this.cursorY);
         return (
-          "\x1B[B\x1b[1M\x1B[A" +
-          "\x1B[C".repeat(charCountBeforeDelete + this.prompt.length) +
+          DOWN +
+          DELETE_LINE +
+          UP +
+          RIGHT.repeat(charCountBeforeDelete + this.promptLen) +
           this.currentLine[this.cursorY].slice(
             charCountBeforeDelete,
             this.currentLine[this.cursorY].length
           ) +
-          "\x1B[D".repeat(charCountOfNextLine)
+          LEFT.repeat(charCountOfNextLine)
         );
       }
-      return "";
+      return EMPTY;
     }
 
-    this.currentLine[this.cursorY] = insertString(
-      this.currentLine[this.cursorY],
-      pressedKey,
-      this.cursorX
-    );
+    const thisLineLength = this.currentLine[this.cursorY].length;
+    if (thisLineLength < TERMINAL_WIDTH - this.promptLen - 1) {
+      this.currentLine[this.cursorY] = insertString(
+        this.currentLine[this.cursorY],
+        pressedKey,
+        this.cursorX
+      );
 
-    this.cursorX++;
-
-    return "\x1b[1@" + pressedKey;
+      this.cursorX++;
+      console.log(this.currentLine[this.cursorY].length);
+      return INSERT_CHAR + pressedKey;
+    }
+    return EMPTY;
   }
 }
 
@@ -233,10 +244,6 @@ function isJustWhitespace(arr: string[]): boolean {
 
 function removeWhitespaceElements(arr: string[]) {
   return arr.filter((str) => str.trim() !== "");
-}
-
-function countWhitespaceElements(arr: string[]) {
-  return arr.filter((str) => str.trim() === "").length;
 }
 
 function mergeAtIndex(arr: string[], index: number) {
