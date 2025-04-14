@@ -1,8 +1,8 @@
-import AstNode from "../../utilities/AstNode";
-import Token from "../../utilities/Token";
+import IAstNode from "../../utilities/IAstNode";
+import IToken from "../../utilities/IToken";
 
 interface ISyntacticAnalyser {
-  Parse(tokenList: Token[]): AstNode;
+  Parse(tokenList: IToken[]): IAstNode;
 }
 
 export default ISyntacticAnalyser;

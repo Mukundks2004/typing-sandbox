@@ -1,7 +1,7 @@
-import Token from "../../utilities/Token";
+import IAstNode from "../../utilities/IAstNode";
 
 interface ILexicalAnalyser {
-  Tokenise(input: string): Token[];
+  Tokenise(input: string): IAstNode[];
 }
 
 export default ILexicalAnalyser;

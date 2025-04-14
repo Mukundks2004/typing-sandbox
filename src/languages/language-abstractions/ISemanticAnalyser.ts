@@ -1,7 +1,7 @@
-import AstNode from "../../utilities/AstNode";
+import IAstNode from "../../utilities/IAstNode";
 
 interface ISemanticAnalyser {
-  AnalyseSemantics(root: AstNode): void;
+  AnalyseSemantics(root: IAstNode): void;
 }
 
 export default ISemanticAnalyser;

@@ -1,7 +1,7 @@
-import AstNode from "../../utilities/AstNode";
+import IAstNode from "../../utilities/IAstNode";
 
 interface IInterpreter {
-  Interpret(root: AstNode): string;
+  Interpret(root: IAstNode): string;
 }
 
 export default IInterpreter;
