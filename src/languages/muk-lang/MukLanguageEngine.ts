@@ -3,7 +3,6 @@ import IAstNode from "../../utilities/IAstNode";
 import IToken from "../../utilities/IToken";
 import ILanguageEngine from "../language-abstractions/ILanguageEngine";
 
-console.log("reset map!");
 const superContext: Map<string, number> = new Map<string, number>();
 
 class LexError extends Error {
@@ -421,7 +420,6 @@ class MukLanguageEngine implements ILanguageEngine {
     context: Map<string, number>,
     output: string
   ): string {
-    console.log("Adding newlinw:");
     return (
       output +
       this.EvaluateExpression(node.children[1], context).toString() +
@@ -440,7 +438,6 @@ class MukLanguageEngine implements ILanguageEngine {
         `Bad number of children in Expression: ${node.children.length}`
       );
     }
-    console.log("evalling expr", node);
     return this.EvaluateExpressionPrime(
       node.children[1],
       context
@@ -465,7 +462,6 @@ class MukLanguageEngine implements ILanguageEngine {
       );
       return (a: number) => outerFunction(innerFunction(a));
     } else {
-      console.log(node);
       throw new InterpretError(
         `Wrong number of children of EXPR_PRIME: ${node.children.length}`
       );
@@ -474,7 +470,6 @@ class MukLanguageEngine implements ILanguageEngine {
 
   EvaluateTerm(node: MukLangAstNode, context: Map<string, number>): number {
     if (node.children.length !== 2) {
-      console.log(node);
       throw new InterpretError(
         `Bad number of children in Term: ${node.children.length}`
       );
@@ -492,7 +487,6 @@ class MukLanguageEngine implements ILanguageEngine {
     if (node.children.length === 1) {
       return (a: number) => a;
     } else if (node.children.length === 3) {
-      console.log("tp", node);
       const innerFunction = (a: number) =>
         this.EvaluateLowHighOp(node.children[0])(
           a,
@@ -525,7 +519,6 @@ class MukLanguageEngine implements ILanguageEngine {
   Execute(input: string[]): string {
     try {
       const result = this.Tokenise(input.join(SPACE));
-      console.log(result.map((x) => x.printDebug()).join(", "));
       const parseResult = this.Parse(result);
       this.AnalyseSemantics(parseResult);
       return this.Interpret(parseResult);

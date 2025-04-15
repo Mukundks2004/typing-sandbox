@@ -13,6 +13,9 @@ function DocsPage() {
           <a className="contents" href="#about">
             <li>About</li>
           </a>
+          <a href="#muklang">
+            <li>MukLang</li>
+          </a>
           <a href="#csharp">
             <li>C#</li>
           </a>
@@ -98,6 +101,29 @@ function DocsPage() {
         </p>
 
         {/* dont forget abstarct information with types? */}
+
+        <br />
+
+        <h2 id="muklang">MukLang</h2>
+
+        <p>
+          MukLang is a POC that it is feasible to write a basic interpreter in
+          the browser. Currently MukLang does not support typing at all, in fact
+          all you can do is create variables, assign and reassign them values
+          and print them. MukLang is so high up on the list because if I can
+          successfully produce a working typed programming language easily, I
+          might expand the scope of this project to creating more complete
+          versions of the languages below beyond just their typing systems.
+          Currently the following actions are valid in MukLang:{" "}
+          <kbd>id = expr;</kbd>, <kbd>print expr;</kbd>. See the{" "}
+          <a
+            className="link-no-decoration"
+            href="https://github.com/Mukundks2004/typing-sandbox"
+          >
+            project readme{" "}
+          </a>
+          for sample I/O.
+        </p>
 
         <br />
 
