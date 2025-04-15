@@ -7,7 +7,7 @@ import DocsPage from "./components/DocsPage";
 
 function App() {
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/typing-sandbox">
       <div style={{ border: "1px solid", borderColor: "#DDDDDD" }}>
         <NavBar></NavBar>
       </div>
