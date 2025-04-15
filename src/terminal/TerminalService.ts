@@ -228,7 +228,6 @@ class TerminalService implements ITerminalService {
       );
 
       this.cursorX++;
-      console.log(this.currentLine[this.cursorY].length);
       return INSERT_CHAR + pressedKey;
     }
     return EMPTY;
