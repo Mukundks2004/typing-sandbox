@@ -37,6 +37,7 @@ class InterpretError extends Error {
 
 enum VarType {
   int = "int",
+  bool = "bool",
 }
 
 enum TokenType {
@@ -53,6 +54,7 @@ enum TokenType {
   eof = "eof",
   epsilon = "epsilon",
   int = "int",
+  bool = "bool",
 }
 
 enum LabelType {
@@ -82,6 +84,8 @@ function datatypeStringToEnum(datatypeName: string): VarType {
   switch (datatypeName) {
     case "int":
       return VarType.int;
+    case "bool":
+      return VarType.bool;
     default:
       throw new Error(`Bad datatype: ${datatypeName}`);
   }
@@ -89,6 +93,7 @@ function datatypeStringToEnum(datatypeName: string): VarType {
 
 const rules = [
   { regex: /^int\b/, type: TokenType.int },
+  { regex: /^bool\b/, type: TokenType.bool },
   { regex: /^print\b/, type: TokenType.print },
   { regex: /^[a-zA-Z_][a-zA-Z0-9_]*/, type: TokenType.id },
   { regex: /^int/, type: TokenType.int },
@@ -284,7 +289,8 @@ class MukLanguageEngine implements ILanguageEngine {
               rule.type === TokenType.id ||
               rule.type === TokenType.low_op ||
               rule.type === TokenType.high_op ||
-              rule.type === TokenType.int
+              rule.type === TokenType.int ||
+              rule.type === TokenType.bool
             ) {
               tokens.push(new MukLangToken(rule.type, match[0]));
             } else {
