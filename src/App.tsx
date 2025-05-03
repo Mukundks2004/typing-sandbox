@@ -1,13 +1,16 @@
 import NavBar from "./components/NavBar";
 import "./App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { Routes, Route, HashRouter as Router } from "react-router-dom";
 import HomePage from "./components/HomePage";
 import NotFoundPage from "./components/NotFound";
 import DocsPage from "./components/DocsPage";
 
+const isProduction = import.meta.env.MODE === "production";
+const basename = isProduction ? "/typing-sandbox" : "/";
+
 function App() {
   return (
-    <BrowserRouter basename="/typing-sandbox">
+    <Router basename={basename}>
       <div style={{ border: "1px solid", borderColor: "#DDDDDD" }}>
         <NavBar></NavBar>
       </div>
@@ -16,7 +19,7 @@ function App() {
         <Route path="docs" element={<DocsPage />} />
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
-    </BrowserRouter>
+    </Router>
   );
 }
 
