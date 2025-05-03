@@ -1,3 +1,5 @@
+This grammar works but i dont understand it very well...
+
 LOS ::= STAT LOS
 LOS ::= ''
 
@@ -5,13 +7,13 @@ STAT ::= print EXPR sem
 STAT ::= TYPE id POS_ASS sem
 STAT ::= id eq EXPR sem
 
-TYPE ::= int
+TYPE ::= int_lit
+TYPE ::= bool_lit
 
 POS_ASS ::= eq EXPR
 POS_ASS ::= ''
 
-EXPR ::= RELEXPR
-EXPR ::= BOOLEXPR
+EXPR ::= RELEXPR BOOLEXPR
 
 BOOLEXPR ::= bool_op RELEXPR BOOLEXPR
 BOOLEXPR ::= ''

@@ -46,6 +46,9 @@ enum TokenType {
   num = "num",
   low_op = "low_op",
   high_op = "high_op",
+  bool_op = "bool_op",
+  rel_op = "rel_op",
+  bool_lit = "bool_lit",
   open_bracket = "open_bracket",
   close_bracket = "close_bracket",
   semicolon = "sem",
@@ -53,7 +56,7 @@ enum TokenType {
   assignment = "assignment",
   eof = "eof",
   epsilon = "epsilon",
-  int = "int",
+  int_lit = "int",
   bool = "bool",
 }
 
@@ -64,9 +67,13 @@ enum LabelType {
   TYPE = "TYPE",
   POS_ASS = "POS_ASS",
   EXPR = "EXPR",
-  EXPR_PRIME = "EXPR_PRIME",
+  BOOLEXPR = "BOOLEXPR",
+  RELEXPR = "RELEXPR",
+  RELEXPRP = "RELEXPRP",
+  ARITHEXPR = "ARITHEXPR",
+  ARITHEXPRP = "ARITHEXPRP",
   TERM = "TERM",
-  TERM_PRIME = "TERM_PRIME",
+  TERMP = "TERMP",
   FACTOR = "FACTOR",
   TERMINAL = "TERMINAL",
 }
@@ -92,14 +99,18 @@ function datatypeStringToEnum(datatypeName: string): VarType {
 }
 
 const rules = [
-  { regex: /^int\b/, type: TokenType.int },
-  { regex: /^bool\b/, type: TokenType.bool },
+  { regex: /^int\b/, type: TokenType.int_lit },
+  { regex: /^bool\b/, type: TokenType.bool_lit },
+  { regex: /^>=|^<=|^<|^>/, type: TokenType.rel_op },
+  { regex: /^!=|^==|^&&|^\|\|/, type: TokenType.bool_op },
+  { regex: /^true\b/, type: TokenType.bool },
+  { regex: /^false\b/, type: TokenType.bool },
   { regex: /^print\b/, type: TokenType.print },
   { regex: /^[a-zA-Z_][a-zA-Z0-9_]*/, type: TokenType.id },
-  { regex: /^int/, type: TokenType.int },
   { regex: /^\d+/, type: TokenType.num },
   { regex: /^[+\-]/, type: TokenType.low_op },
   { regex: /^[*/]/, type: TokenType.high_op },
+  { regex: /^%/, type: TokenType.high_op },
   { regex: /^=/, type: TokenType.assignment },
   { regex: /^\(/, type: TokenType.open_bracket },
   { regex: /^\)/, type: TokenType.close_bracket },
@@ -162,7 +173,8 @@ parseTable.set(
     [TokenType.eof, [LabelType.LOS, TokenType.eof]],
     [TokenType.print, [LabelType.LOS, TokenType.eof]],
     [TokenType.id, [LabelType.LOS, TokenType.eof]],
-    [TokenType.int, [LabelType.LOS, TokenType.eof]],
+    [TokenType.int_lit, [LabelType.LOS, TokenType.eof]],
+    [TokenType.bool_lit, [LabelType.LOS, TokenType.eof]],
   ])
 );
 
@@ -172,7 +184,8 @@ parseTable.set(
     [TokenType.eof, [TokenType.epsilon]],
     [TokenType.print, [LabelType.STAT, LabelType.LOS]],
     [TokenType.id, [LabelType.STAT, LabelType.LOS]],
-    [TokenType.int, [LabelType.STAT, LabelType.LOS]],
+    [TokenType.int_lit, [LabelType.STAT, LabelType.LOS]],
+    [TokenType.bool_lit, [LabelType.STAT, LabelType.LOS]],
   ])
 );
 
@@ -185,13 +198,23 @@ parseTable.set(
       [TokenType.id, TokenType.assignment, LabelType.EXPR, TokenType.semicolon],
     ],
     [
-      TokenType.int,
+      TokenType.int_lit,
+      [LabelType.TYPE, TokenType.id, LabelType.POS_ASS, TokenType.semicolon],
+    ],
+    [
+      TokenType.bool_lit,
       [LabelType.TYPE, TokenType.id, LabelType.POS_ASS, TokenType.semicolon],
     ],
   ])
 );
 
-parseTable.set(LabelType.TYPE, new Map([[TokenType.int, [TokenType.int]]]));
+parseTable.set(
+  LabelType.TYPE,
+  new Map([
+    [TokenType.int_lit, [TokenType.int_lit]],
+    [TokenType.bool_lit, [TokenType.bool_lit]],
+  ])
+);
 
 parseTable.set(
   LabelType.POS_ASS,
@@ -204,43 +227,86 @@ parseTable.set(
 parseTable.set(
   LabelType.EXPR,
   new Map([
-    [TokenType.id, [LabelType.TERM, LabelType.EXPR_PRIME]],
-    [TokenType.num, [LabelType.TERM, LabelType.EXPR_PRIME]],
-    [TokenType.open_bracket, [LabelType.TERM, LabelType.EXPR_PRIME]],
+    [TokenType.id, [LabelType.RELEXPR, LabelType.BOOLEXPR]],
+    [TokenType.bool, [LabelType.RELEXPR, LabelType.BOOLEXPR]],
+    [TokenType.open_bracket, [LabelType.RELEXPR, LabelType.BOOLEXPR]],
+    [TokenType.num, [LabelType.RELEXPR, LabelType.BOOLEXPR]],
   ])
 );
 
 parseTable.set(
-  LabelType.EXPR_PRIME,
+  LabelType.BOOLEXPR,
   new Map([
     [TokenType.semicolon, [TokenType.epsilon]],
     [
-      TokenType.low_op,
-      [TokenType.low_op, LabelType.TERM, LabelType.EXPR_PRIME],
+      TokenType.bool_op,
+      [TokenType.bool_op, LabelType.RELEXPR, LabelType.BOOLEXPR],
     ],
     [TokenType.close_bracket, [TokenType.epsilon]],
+  ])
+);
+
+parseTable.set(
+  LabelType.RELEXPR,
+  new Map([
+    [TokenType.id, [LabelType.ARITHEXPR, LabelType.RELEXPRP]],
+    [TokenType.open_bracket, [LabelType.ARITHEXPR, LabelType.RELEXPRP]],
+    [TokenType.num, [LabelType.ARITHEXPR, LabelType.RELEXPRP]],
+    [TokenType.bool, [TokenType.bool]],
+  ])
+);
+
+parseTable.set(
+  LabelType.RELEXPRP,
+  new Map([
+    [TokenType.semicolon, [TokenType.epsilon]],
+    [TokenType.bool_op, [TokenType.epsilon]],
+    [TokenType.close_bracket, [TokenType.epsilon]],
+    [TokenType.rel_op, [TokenType.rel_op, LabelType.ARITHEXPR]],
+  ])
+);
+
+parseTable.set(
+  LabelType.ARITHEXPR,
+  new Map([
+    [TokenType.id, [LabelType.TERM, LabelType.ARITHEXPRP]],
+    [TokenType.open_bracket, [LabelType.TERM, LabelType.ARITHEXPRP]],
+    [TokenType.num, [LabelType.TERM, LabelType.ARITHEXPRP]],
+  ])
+);
+
+parseTable.set(
+  LabelType.ARITHEXPRP,
+  new Map([
+    [TokenType.semicolon, [TokenType.epsilon]],
+    [TokenType.bool_op, [TokenType.epsilon]],
+    [TokenType.rel_op, [TokenType.epsilon]],
+    [TokenType.close_bracket, [TokenType.epsilon]],
+    [
+      TokenType.low_op,
+      [TokenType.low_op, LabelType.TERM, LabelType.ARITHEXPRP],
+    ],
   ])
 );
 
 parseTable.set(
   LabelType.TERM,
   new Map([
-    [TokenType.id, [LabelType.FACTOR, LabelType.TERM_PRIME]],
-    [TokenType.num, [LabelType.FACTOR, LabelType.TERM_PRIME]],
-    [TokenType.open_bracket, [LabelType.FACTOR, LabelType.TERM_PRIME]],
+    [TokenType.id, [LabelType.FACTOR, LabelType.TERMP]],
+    [TokenType.open_bracket, [LabelType.FACTOR, LabelType.TERMP]],
+    [TokenType.num, [LabelType.FACTOR, LabelType.TERMP]],
   ])
 );
 
 parseTable.set(
-  LabelType.TERM_PRIME,
+  LabelType.TERMP,
   new Map([
     [TokenType.semicolon, [TokenType.epsilon]],
+    [TokenType.bool_op, [TokenType.epsilon]],
+    [TokenType.rel_op, [TokenType.epsilon]],
     [TokenType.low_op, [TokenType.epsilon]],
-    [
-      TokenType.high_op,
-      [TokenType.high_op, LabelType.FACTOR, LabelType.TERM_PRIME],
-    ],
     [TokenType.close_bracket, [TokenType.epsilon]],
+    [TokenType.high_op, [TokenType.high_op, LabelType.FACTOR, LabelType.TERMP]],
   ])
 );
 
@@ -289,7 +355,7 @@ class MukLanguageEngine implements ILanguageEngine {
               rule.type === TokenType.id ||
               rule.type === TokenType.low_op ||
               rule.type === TokenType.high_op ||
-              rule.type === TokenType.int ||
+              rule.type === TokenType.int_lit ||
               rule.type === TokenType.bool
             ) {
               tokens.push(new MukLangToken(rule.type, match[0]));
@@ -612,7 +678,8 @@ class MukLanguageEngine implements ILanguageEngine {
       const result = this.Tokenise(input.join(SPACE));
       const parseResult = this.Parse(result);
       this.AnalyseSemantics(parseResult);
-      return this.Interpret(parseResult);
+      return "";
+      // return this.Interpret(parseResult);
     } catch (err: unknown) {
       console.log(err);
       var errorMsg;
