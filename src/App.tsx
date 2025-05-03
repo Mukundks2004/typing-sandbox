@@ -6,7 +6,11 @@ import NotFoundPage from "./components/NotFound";
 import DocsPage from "./components/DocsPage";
 
 const isProduction = import.meta.env.MODE === "production";
-const basename = isProduction ? "/typing-sandbox" : "/";
+const basename = isProduction ? "/" : "/";
+
+console.log("Current pathname:", window.location.pathname);
+console.log("Using basename:", basename);
+console.log("Production mode:", import.meta.env.MODE);
 
 function App() {
   return (
