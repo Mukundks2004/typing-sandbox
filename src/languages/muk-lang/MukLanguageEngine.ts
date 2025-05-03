@@ -3,7 +3,9 @@ import IAstNode from "../../utilities/IAstNode";
 import IToken from "../../utilities/IToken";
 import ILanguageEngine from "../language-abstractions/ILanguageEngine";
 
-const superContext: Map<string, number> = new Map<string, number>();
+// the goal of this wi is to make it so that variables have to be declared before they can be used
+
+const superContext: Map<string, MukLangData> = new Map<string, MukLangData>();
 
 class LexError extends Error {
   constructor(message: string) {
@@ -33,6 +35,10 @@ class InterpretError extends Error {
   }
 }
 
+enum VarType {
+  int = "int",
+}
+
 enum TokenType {
   print = "print",
   id = "id",
@@ -46,14 +52,15 @@ enum TokenType {
   assignment = "assignment",
   eof = "eof",
   epsilon = "epsilon",
+  int = "int",
 }
 
 enum LabelType {
   START = "START",
   LOS = "LOS",
   STAT = "STAT",
-  PRINT = "PRINT",
-  INIT = "INIT",
+  TYPE = "TYPE",
+  POS_ASS = "POS_ASS",
   EXPR = "EXPR",
   EXPR_PRIME = "EXPR_PRIME",
   TERM = "TERM",
@@ -62,13 +69,29 @@ enum LabelType {
   TERMINAL = "TERMINAL",
 }
 
+interface MukLangData {
+  type: VarType;
+  intValue: null | number;
+}
+
 function isLabel(value: LabelType | TokenType): value is LabelType {
   return Object.values(LabelType).includes(value as LabelType);
 }
 
+function datatypeStringToEnum(datatypeName: string): VarType {
+  switch (datatypeName) {
+    case "int":
+      return VarType.int;
+    default:
+      throw new Error(`Bad datatype: ${datatypeName}`);
+  }
+}
+
 const rules = [
+  { regex: /^int\b/, type: TokenType.int },
   { regex: /^print\b/, type: TokenType.print },
-  { regex: /^[a-zA-Z_]\w*/, type: TokenType.id },
+  { regex: /^[a-zA-Z_][a-zA-Z0-9_]*/, type: TokenType.id },
+  { regex: /^int/, type: TokenType.int },
   { regex: /^\d+/, type: TokenType.num },
   { regex: /^[+\-]/, type: TokenType.low_op },
   { regex: /^[*/]/, type: TokenType.high_op },
@@ -134,6 +157,7 @@ parseTable.set(
     [TokenType.eof, [LabelType.LOS, TokenType.eof]],
     [TokenType.print, [LabelType.LOS, TokenType.eof]],
     [TokenType.id, [LabelType.LOS, TokenType.eof]],
+    [TokenType.int, [LabelType.LOS, TokenType.eof]],
   ])
 );
 
@@ -143,26 +167,32 @@ parseTable.set(
     [TokenType.eof, [TokenType.epsilon]],
     [TokenType.print, [LabelType.STAT, LabelType.LOS]],
     [TokenType.id, [LabelType.STAT, LabelType.LOS]],
+    [TokenType.int, [LabelType.STAT, LabelType.LOS]],
   ])
 );
 
 parseTable.set(
   LabelType.STAT,
   new Map([
-    [TokenType.print, [LabelType.PRINT, TokenType.semicolon]],
-    [TokenType.id, [LabelType.INIT, TokenType.semicolon]],
+    [TokenType.print, [TokenType.print, LabelType.EXPR, TokenType.semicolon]],
+    [
+      TokenType.id,
+      [TokenType.id, TokenType.assignment, LabelType.EXPR, TokenType.semicolon],
+    ],
+    [
+      TokenType.int,
+      [LabelType.TYPE, TokenType.id, LabelType.POS_ASS, TokenType.semicolon],
+    ],
   ])
 );
 
-parseTable.set(
-  LabelType.PRINT,
-  new Map([[TokenType.print, [TokenType.print, LabelType.EXPR]]])
-);
+parseTable.set(LabelType.TYPE, new Map([[TokenType.int, [TokenType.int]]]));
 
 parseTable.set(
-  LabelType.INIT,
+  LabelType.POS_ASS,
   new Map([
-    [TokenType.id, [TokenType.id, TokenType.assignment, LabelType.EXPR]],
+    [TokenType.semicolon, [TokenType.epsilon]],
+    [TokenType.assignment, [TokenType.assignment, LabelType.EXPR]],
   ])
 );
 
@@ -253,7 +283,8 @@ class MukLanguageEngine implements ILanguageEngine {
               rule.type === TokenType.num ||
               rule.type === TokenType.id ||
               rule.type === TokenType.low_op ||
-              rule.type === TokenType.high_op
+              rule.type === TokenType.high_op ||
+              rule.type === TokenType.int
             ) {
               tokens.push(new MukLangToken(rule.type, match[0]));
             } else {
@@ -338,33 +369,42 @@ class MukLanguageEngine implements ILanguageEngine {
     if (varStack.length !== 0) {
       throw new ParseError("Expected more, varstack not empty");
     }
-
     return root;
   }
 
   AnalyseSemantics(_: MukLangAstNode): void {}
 
   Interpret(node: MukLangAstNode): string {
-    // var context: Map<string, number> = new Map<string, number>();
     const output = this.PerformProgramExecution(node, superContext);
     return output;
   }
 
   PerformProgramExecution(
     node: MukLangAstNode,
-    context: Map<string, number>
+    context: Map<string, MukLangData>
   ): string {
     const output = this.PerformLos(node.children[0], context, EMPTY);
     return output;
   }
 
-  EvaluateFactor(node: MukLangAstNode, context: Map<string, number>): number {
+  PerformType(node: MukLangAstNode): VarType {
+    return datatypeStringToEnum(node.children[0].token!.value!);
+  }
+
+  EvaluateFactor(
+    node: MukLangAstNode,
+    context: Map<string, MukLangData>
+  ): MukLangData {
     if (node.children.length === 3) {
       return this.EvaluateExpression(node.children[1], context);
     } else if (node.children.length === 1) {
       const token = node.children[0].token!;
       if (token.tokenType === TokenType.num) {
-        return +token.value!;
+        const factorValue: MukLangData = {
+          type: VarType.int,
+          intValue: +token.value!,
+        };
+        return factorValue;
       }
       if (token.tokenType === TokenType.id) {
         const varName = token.value!;
@@ -384,7 +424,7 @@ class MukLanguageEngine implements ILanguageEngine {
 
   PerformLos(
     node: MukLangAstNode,
-    context: Map<string, number>,
+    context: Map<string, MukLangData>,
     output: string
   ): string {
     if (node.children.length === 1) {
@@ -401,60 +441,97 @@ class MukLanguageEngine implements ILanguageEngine {
 
   PerformStat(
     node: MukLangAstNode,
-    context: Map<string, number>,
+    context: Map<string, MukLangData>,
     output: string
   ): string {
     const firstChild = node.children[0];
-    if (firstChild.label === LabelType.PRINT) {
-      output = this.PerformPrint(node.children[0], context, output);
-    } else if (firstChild.label === LabelType.INIT) {
-      this.PerformInit(node.children[0], context);
+    if (firstChild.label === LabelType.TYPE) {
+      this.PerformDecl(node, context);
+    } else if (firstChild.token?.tokenType === TokenType.print) {
+      // ASSUMES INT IS THE ONLY DATATYPE
+      output +=
+        this.EvaluateExpression(
+          node.children[1],
+          context
+        ).intValue!.toString() + "\n";
+    } else if (firstChild.token?.tokenType === TokenType.id) {
+      this.PerformAssignment(node, context);
     } else {
       throw new InterpretError(`Stat encountered bad node: ${node.label}`);
     }
     return output;
   }
 
-  PerformPrint(
+  PerformAssignment(
     node: MukLangAstNode,
-    context: Map<string, number>,
-    output: string
-  ): string {
-    return (
-      output +
-      this.EvaluateExpression(node.children[1], context).toString() +
-      "\n"
-    );
+    context: Map<string, MukLangData>
+  ): void {
+    const varName = node.children[0].token!.value!;
+    if (context.has(varName)) {
+      const initValue = this.EvaluateExpression(node.children[2], context);
+      context.set(varName, initValue);
+    } else {
+      throw new InterpretError(`Unknown id ${varName}`);
+    }
   }
 
-  PerformInit(node: MukLangAstNode, context: Map<string, number>): void {
-    const initValue = this.EvaluateExpression(node.children[2], context);
-    context.set(node.children[0].token!.value!, initValue);
+  PerformDecl(node: MukLangAstNode, context: Map<string, MukLangData>): void {
+    const type = this.PerformType(node.children[0]);
+    const varName = node.children[1].token!.value!;
+
+    context.set(varName, { type: type, intValue: 0 });
+    this.PerformPosAss(varName, node.children[2], context);
   }
 
-  EvaluateExpression(node: MukLangAstNode, context: Map<string, number>) {
+  PerformPosAss(
+    varName: string,
+    node: MukLangAstNode,
+    context: Map<string, MukLangData>
+  ): void {
+    if (node.children.length === 1) {
+      return;
+    } else {
+      if (context.has(varName)) {
+        const initValue = this.EvaluateExpression(node.children[1], context);
+        context.set(varName, initValue);
+      } else {
+        throw new InterpretError(`Unknown id ${varName}`);
+      }
+    }
+  }
+
+  EvaluateExpression(
+    node: MukLangAstNode,
+    context: Map<string, MukLangData>
+  ): MukLangData {
     if (node.children.length !== 2) {
       throw new InterpretError(
         `Bad number of children in Expression: ${node.children.length}`
       );
     }
-    return this.EvaluateExpressionPrime(
-      node.children[1],
-      context
-    )(this.EvaluateTerm(node.children[0], context));
+    // NOTE: THIS CAN FAIL IF INTVALUE IS NULL WHEN THERE ARE MORE DATATYPES, ASSUMES SYSTEM IS TYPE SAFE
+    const factorValue: MukLangData = {
+      type: VarType.int,
+      intValue: this.EvaluateExpressionPrime(
+        node.children[1],
+        context
+      )(this.EvaluateTerm(node.children[0], context).intValue!),
+    };
+    return factorValue;
   }
 
   EvaluateExpressionPrime(
     node: MukLangAstNode,
-    context: Map<string, number>
+    context: Map<string, MukLangData>
   ): (a: number) => number {
     if (node.children.length === 1) {
       return (a: number) => a;
     } else if (node.children.length === 3) {
+      // NOTE: THIS CAN FAIL IF INTVALUE IS NULL WHEN THERE ARE MORE DATATYPES, ASSUMES SYSTEM IS TYPE SAFE
       const innerFunction = (a: number) =>
         this.EvaluateLowHighOp(node.children[0])(
           a,
-          this.EvaluateTerm(node.children[1], context)
+          this.EvaluateTerm(node.children[1], context).intValue!
         );
       const outerFunction = this.EvaluateExpressionPrime(
         node.children[2],
@@ -468,29 +545,37 @@ class MukLanguageEngine implements ILanguageEngine {
     }
   }
 
-  EvaluateTerm(node: MukLangAstNode, context: Map<string, number>): number {
+  EvaluateTerm(
+    node: MukLangAstNode,
+    context: Map<string, MukLangData>
+  ): MukLangData {
     if (node.children.length !== 2) {
       throw new InterpretError(
         `Bad number of children in Term: ${node.children.length}`
       );
     }
-    return this.EvaluateTermPrime(
-      node.children[1],
-      context
-    )(this.EvaluateFactor(node.children[0], context));
+    const factorValue: MukLangData = {
+      type: VarType.int,
+      intValue: this.EvaluateTermPrime(
+        node.children[1],
+        context
+      )(this.EvaluateFactor(node.children[0], context).intValue!),
+    };
+    return factorValue;
   }
 
   EvaluateTermPrime(
     node: MukLangAstNode,
-    context: Map<string, number>
+    context: Map<string, MukLangData>
   ): (a: number) => number {
     if (node.children.length === 1) {
       return (a: number) => a;
     } else if (node.children.length === 3) {
+      // NOTE: THIS CAN FAIL IF INTVALUE IS NULL WHEN THERE ARE MORE DATATYPES, ASSUMES SYSTEM IS TYPE SAFE
       const innerFunction = (a: number) =>
         this.EvaluateLowHighOp(node.children[0])(
           a,
-          this.EvaluateFactor(node.children[1], context)
+          this.EvaluateFactor(node.children[1], context).intValue!
         );
       const outerFunction = this.EvaluateTermPrime(node.children[2], context);
       return (a: number) => outerFunction(innerFunction(a));
@@ -522,7 +607,8 @@ class MukLanguageEngine implements ILanguageEngine {
       const parseResult = this.Parse(result);
       this.AnalyseSemantics(parseResult);
       return this.Interpret(parseResult);
-    } catch (err) {
+    } catch (err: unknown) {
+      console.log(err);
       var errorMsg;
       if (err instanceof LexError) {
         errorMsg = "LexError";
@@ -532,8 +618,8 @@ class MukLanguageEngine implements ILanguageEngine {
         errorMsg = "SemanticError";
       } else if (err instanceof InterpretError) {
         errorMsg = "InterpretError";
-      } else {
-        errorMsg = "Generic Error";
+      } else if (err instanceof Error) {
+        errorMsg = "Generic Error " + err.message + " " + err.stack;
       }
       return errorMsg + "\n";
     }

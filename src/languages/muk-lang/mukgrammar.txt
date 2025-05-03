@@ -1,0 +1,23 @@
+LOS ::= STAT LOS
+LOS ::= ''
+
+STAT ::= print EXPR sem
+STAT ::= TYPE id POS_ASS sem
+STAT ::= id eq EXPR sem
+
+TYPE ::= int
+
+POS_ASS ::= eq EXPR
+POS_ASS ::= ''
+
+EXPR ::= TERM EXPRP
+EXPRP ::= low_op TERM EXPRP
+EXPRP ::= ''
+
+TERM ::= FACTOR TERMP
+TERMP ::= high_op FACTOR TERMP
+TERMP ::= ''
+
+FACTOR ::= openb EXPR closb
+FACTOR ::= id
+FACTOR ::= num

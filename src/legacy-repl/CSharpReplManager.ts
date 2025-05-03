@@ -32,7 +32,6 @@ class CSharpReplManager implements IReplManager {
       if (this.braceStack.length !== 0) {
         this.cursor += 2;
         this.currentLine += "\n\t";
-        console.log("p");
         return "\n" + "\t".repeat(this.braceStack.length);
       }
       if (!this.currentLine.match(/^\s*$/)) {
