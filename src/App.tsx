@@ -5,8 +5,7 @@ import HomePage from "./components/HomePage";
 import NotFoundPage from "./components/NotFound";
 import DocsPage from "./components/DocsPage";
 
-const isProduction = import.meta.env.MODE === "production";
-const basename = isProduction ? "/" : "/";
+const basename = "/";
 
 console.log("Current pathname:", window.location.pathname);
 console.log("Using basename:", basename);

@@ -1,28 +1,41 @@
 import "../App.css";
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
 
 function DocsPage() {
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const sectionId = params.get("scroll");
+    if (sectionId) {
+      const el = document.getElementById(sectionId);
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [location]);
+
   return (
     <>
       <div className="text-offset">
         <h2>Contents</h2>
 
         <ul className="contents">
-          <a href="#getting-started">
+          <a href="#/docs?scroll=getting-started">
             <li>Getting Started</li>
           </a>
-          <a className="contents" href="#about">
+          <a href="#/docs?scroll=about">
             <li>About</li>
           </a>
-          <a href="#muklang">
+          <a href="#/docs?scroll=muklang">
             <li>MukLang</li>
           </a>
-          <a href="#csharp">
+          <a href="#/docs?scroll=csharp">
             <li>C#</li>
           </a>
-          <a href="#scala">
+          <a href="#/docs?scroll=scala">
             <li>Scala</li>
           </a>
-          <a href="#type-theory">
+          <a href="#/docs?scroll=type-theory">
             <li>Type Theory</li>
           </a>
         </ul>
